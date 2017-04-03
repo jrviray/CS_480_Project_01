@@ -1,6 +1,5 @@
-/**
- * Created by king on 4/3/17.
- */
+import java.io.*;
+
 public class example {
 
     public static void main(String[] args){
