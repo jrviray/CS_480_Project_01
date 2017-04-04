@@ -9,5 +9,7 @@ public class example {
     }
 
     //comment to show commits and sytuff
+    
+    //test comment by kato
 
 }
