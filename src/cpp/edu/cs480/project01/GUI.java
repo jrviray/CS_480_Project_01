@@ -10,9 +10,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
@@ -20,9 +19,9 @@ public class GUI extends Application {
 
     private Scene mainScene;
 
-    final private double APP_WITDTH = 1000;
+    private double mainPaneWidth= 1200;
 
-    final private double APP_HEIGHT = 1000;
+    private double mainPaneHeight = 600;
 
     private Button inserButton,
             deleButton,
@@ -33,7 +32,7 @@ public class GUI extends Application {
     /**
      * This is the main Pane where the animation of RB Tree happens
      */
-    private ScrollPane mainPane;
+    private Pane mainPane;
 
 
     private TextField inputValue;
@@ -59,11 +58,11 @@ public class GUI extends Application {
     /**
      * This method initialize the user interface of this application
      */
-    public void initialize()
+    private void initialize()
     {
         rootPane=new BorderPane();
 
-        mainScene = new Scene(rootPane,APP_WITDTH,APP_HEIGHT);
+        mainScene = new Scene(rootPane);
 
 
         inputValue=new TextField();
@@ -80,26 +79,36 @@ public class GUI extends Application {
         inputLabel.setFont(Font.font(15f));
 
 
-        HBox upperPane = new HBox(20f);
-        upperPane.setPadding(new Insets(20f,20f,20f,20f));
-        upperPane.setAlignment(Pos.BASELINE_CENTER);
-        HBox lowerPane = new HBox(20f);
-        lowerPane.setPadding(new Insets(0,20f,20f,20f));
-        lowerPane.setAlignment(Pos.BASELINE_CENTER);
+        HBox leftPane = new HBox(20f);
+        leftPane.setPadding(new Insets(20f,20f,20f,20f));
+        leftPane.setAlignment(Pos.BASELINE_LEFT);
+        HBox rightPane = new HBox(20f);
+        rightPane.setPadding(new Insets(20f,20f,20f,20f));
+        rightPane.setAlignment(Pos.BASELINE_RIGHT);
 
-        VBox topPane = new VBox();
-        topPane.getChildren().addAll(upperPane,lowerPane);
+        BorderPane topPane = new BorderPane();
+        topPane.setLeft(leftPane);
+        topPane.setRight(rightPane);
 
-        upperPane.getChildren().addAll(inputLabel,inputValue,inserButton,
+        leftPane.getChildren().addAll(inputLabel,inputValue,inserButton,
                 deleButton,fixButton);
-        lowerPane.getChildren().addAll(saveButton,loadButton);
+        rightPane.getChildren().addAll(saveButton,loadButton);
 
         rootPane.setTop(topPane);
         //done setting up the top part of the UI
 
-        mainPane = new ScrollPane();
-        rootPane.setCenter(mainPane);
+        mainPane=new Pane();
+        mainPane.setPadding(new Insets(20,20,20,20));
 
 
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(mainPane);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefViewportHeight(mainPaneHeight);
+        scrollPane.setPrefViewportWidth(mainPaneWidth);
+
+
+        rootPane.setCenter(scrollPane);
     }
+
 }
