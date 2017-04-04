@@ -1,4 +1,4 @@
-# RBTreeVisualization
+# RB Tree Visualization
 ## Project Requirement
 
 One of my favorite classes to teach is CS 241: Data Structures II. In this class, I teach the concept of a self-balancing tree, and in particular, that of a Red-black tree. When I present these structures in class, I use illustrations on the board to discuss them, but I would LOVE to have a program that provide a graphical illustration of the trees, with animations that show how they change as values are added and removed.
