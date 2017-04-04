@@ -6,16 +6,10 @@ package cpp.edu.cs480.project06;
 
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
-
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -29,8 +23,8 @@ public class GUI extends Application {
 
     private double mainPaneHeight = 600;
 
-    private Button inserButton,
-            deleButton,
+    private Button addButton,
+            deleteButton,
             fixButton,
             saveButton,
             loadButton;
@@ -44,6 +38,9 @@ public class GUI extends Application {
     private TextField inputValue;
 
     private BorderPane rootPane;
+
+
+    private TextArea outputArea;
 
 
 
@@ -75,10 +72,11 @@ public class GUI extends Application {
         inputValue=new TextField();
         inputValue.setPrefWidth(50f);
 
-        inserButton=new Button("Add");
-        inserButton.setOnMouseClicked((event -> addNode()));
+        addButton=new Button("Add");
+        addButton.setOnMouseClicked((event -> addNode()));
         // add an action on add button
-        deleButton=new Button("Delete");
+        deleteButton=new Button("Delete");
+        deleteButton.setDisable(true);
         fixButton= new Button("Fix");
         fixButton.setDisable(true);
         saveButton=new Button("Save tree");
@@ -99,12 +97,23 @@ public class GUI extends Application {
         topPane.setLeft(leftPane);
         topPane.setRight(rightPane);
 
-        leftPane.getChildren().addAll(inputLabel,inputValue,inserButton,
-                deleButton,fixButton);
+        leftPane.getChildren().addAll(inputLabel,inputValue,addButton,
+                deleteButton,fixButton);
         rightPane.getChildren().addAll(saveButton,loadButton);
 
         rootPane.setTop(topPane);
         //done setting up the top part of the UI
+
+        outputArea = new TextArea();
+        outputArea.setFont(Font.font(16));
+        resetOutputArea();
+        outputArea.setEditable(false);
+        ScrollPane bottomScrollPane = new ScrollPane(outputArea);
+        bottomScrollPane.setFitToWidth(true);
+        bottomScrollPane.setFitToHeight(true);
+        bottomScrollPane.setPrefHeight(100);
+        rootPane.setBottom(bottomScrollPane);
+        bottomScrollPane.setVvalue(1);
 
         mainPane=new Pane();
         mainPane.setPadding(new Insets(20,20,20,20));
@@ -129,41 +138,70 @@ public class GUI extends Application {
     }
 
 
+    /**
+     * This method will be called when the add button is clicked
+     */
     private void addNode()
     {
-        inserButton.setDisable(true);
-        deleButton.setDisable(true);
-        // the add button and delete button is disable before the animation ends
         try{
             int key=Integer.parseInt(inputValue.getText());
+            addButton.setDisable(true);
+            deleteButton.setDisable(true);
+            // the add button and delete button is disable before the animation ends
             GraphicNode newNode = new GraphicNode(40f,40f,key);
             mainPane.getChildren().addAll(newNode.circle,newNode.keyText);
             //the Node is ready on the left top corner
 
             //here inform the backend to do the insertion and ask a node to return
 
-            insertNodeAnimation(newNode);
+
             //here begins the animation
+            addNodeAnimation(newNode);
+            outputString("adding "+key+" to the tree");
 
 
 
         }
         catch (NumberFormatException e)
         {
-            System.out.println("Invalid Input");
+            outputString("Invalid Input!");
         }
 
     }
 
 
-    private void insertNodeAnimation(GraphicNode currentNode)
+    /**
+     * This method is handling the animation for adding new Node
+     * @param currentNode
+     */
+    private void addNodeAnimation(GraphicNode currentNode)
     {
-        boolean animationDone=false;
         TranslateTransition tt = new TranslateTransition(Duration.seconds(3f),currentNode.circle);
         tt.setToX(mainPane.getWidth()/2);
         tt.setOnFinished(event -> {fixButton.setDisable(false);});
         tt.play();
 
+
+
+
+    }
+
+    /**
+     * This method is used to reset the output text on the bottom of the application
+     */
+    private void resetOutputArea()
+    {
+        outputArea.setText("Output:\n");
+    }
+
+    /**
+     * This method is used to output a new line of string in the bottom of the application
+     */
+    private void outputString(String output)
+    {
+
+        outputArea.setText(outputArea.getText()+output+"\n");
+        outputArea.positionCaret(outputArea.getText().length());
 
     }
 
