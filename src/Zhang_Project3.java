@@ -12,7 +12,6 @@
  * @author Felix Zhang 
  *   
  */
-package edu.cpp.cs.cs241.prog_assgmnt_3;
 
 /**
  * @author FelixZhang
