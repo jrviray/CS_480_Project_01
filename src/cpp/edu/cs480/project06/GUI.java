@@ -1,8 +1,14 @@
-package cpp.edu.cs480.project06;/**
+package cpp.edu.cs480.project06;
+/**
  * Created by xinyuan_wang on 4/3/17.
  */
 
+
+import javafx.animation.TranslateTransition;
 import javafx.application.Application;
+
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -13,6 +19,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class GUI extends Application {
 
@@ -51,6 +58,7 @@ public class GUI extends Application {
         primaryStage.setTitle("RedBlackTreeVisualization");
         primaryStage.setScene(mainScene);
         primaryStage.show();
+        test();
 
     }
 
@@ -68,6 +76,8 @@ public class GUI extends Application {
         inputValue.setPrefWidth(50f);
 
         inserButton=new Button("Add");
+        inserButton.setOnMouseClicked((event -> addNode()));
+        // add an action on add button
         deleButton=new Button("Delete");
         fixButton= new Button("Fix");
         fixButton.setDisable(true);
@@ -108,6 +118,53 @@ public class GUI extends Application {
 
 
         rootPane.setCenter(scrollPane);
+    }
+
+    /**
+     * This a temporary method for testing
+     */
+    private void test()
+    {
+
+    }
+
+
+    private void addNode()
+    {
+        inserButton.setDisable(true);
+        deleButton.setDisable(true);
+        // the add button and delete button is disable before the animation ends
+        try{
+            int key=Integer.parseInt(inputValue.getText());
+            GraphicNode newNode = new GraphicNode(40f,40f,key);
+            mainPane.getChildren().addAll(newNode.circle,newNode.keyText);
+            //the Node is ready on the left top corner
+
+            //here inform the backend to do the insertion and ask a node to return
+
+            insertNodeAnimation(newNode);
+            //here begins the animation
+
+
+
+        }
+        catch (NumberFormatException e)
+        {
+            System.out.println("Invalid Input");
+        }
+
+    }
+
+
+    private void insertNodeAnimation(GraphicNode currentNode)
+    {
+        boolean animationDone=false;
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(3f),currentNode.circle);
+        tt.setToX(mainPane.getWidth()/2);
+        tt.setOnFinished(event -> {fixButton.setDisable(false);});
+        tt.play();
+
+
     }
 
 }
