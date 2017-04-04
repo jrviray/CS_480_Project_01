@@ -8,8 +8,4 @@ public class example {
 	System.out.println("This is a test");
     }
 
-    //comment to show commits and sytuff
-    
-    //test comment by kato
-
 }
