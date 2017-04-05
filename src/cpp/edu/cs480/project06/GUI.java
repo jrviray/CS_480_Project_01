@@ -34,6 +34,8 @@ public class GUI extends Application {
      */
     private Pane mainPane;
 
+    private Pane linkPane;
+
 
     private TextField inputValue;
 
@@ -73,7 +75,7 @@ public class GUI extends Application {
         inputValue.setPrefWidth(50f);
 
         addButton=new Button("Add");
-        addButton.setOnMouseClicked((event -> addNode()));
+        addButton.setOnMouseClicked((event -> addNodeToTree()));
         // add an action on add button
         deleteButton=new Button("Delete");
         deleteButton.setDisable(true);
@@ -118,9 +120,11 @@ public class GUI extends Application {
         mainPane=new Pane();
         mainPane.setPadding(new Insets(20,20,20,20));
 
-
+        linkPane= new Pane();
+        StackPane stackPane= new StackPane();
+        stackPane.getChildren().addAll(linkPane,mainPane);
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(mainPane);
+        scrollPane.setContent(stackPane);
         scrollPane.setFitToWidth(true);
         scrollPane.setPrefViewportHeight(mainPaneHeight);
         scrollPane.setPrefViewportWidth(mainPaneWidth);
@@ -141,25 +145,23 @@ public class GUI extends Application {
     /**
      * This method will be called when the add button is clicked
      */
-    private void addNode()
+    private void addNodeToTree()
     {
         try{
             int key=Integer.parseInt(inputValue.getText());
+            // if the input is not an integer,NumberFormatException will be handled
             addButton.setDisable(true);
             deleteButton.setDisable(true);
             // the add button and delete button is disable before the animation ends
             GraphicNode newNode = new GraphicNode(40f,40f,key);
-            mainPane.getChildren().addAll(newNode.circle,newNode.keyText);
-            //the Node is ready on the left top corner
+            //the Node is ready on the left top corner, then draw the node
+            drawNode(newNode);
 
             //here inform the backend to do the insertion and ask a node to return
-
 
             //here begins the animation
             addNodeAnimation(newNode);
             outputString("adding "+key+" to the tree");
-
-
 
         }
         catch (NumberFormatException e)
@@ -181,9 +183,6 @@ public class GUI extends Application {
         tt.setOnFinished(event -> {fixButton.setDisable(false);});
         tt.play();
 
-
-
-
     }
 
     /**
@@ -203,6 +202,22 @@ public class GUI extends Application {
         outputArea.setText(outputArea.getText()+output+"\n");
         outputArea.positionCaret(outputArea.getText().length());
 
+    }
+
+    /**
+     * This method is used to draw a node on the graphic interface.
+     * If the node has null child(ren), it(they) will also be drawn.
+     * The node only need to draw once
+     * @param node
+     */
+    private void drawNode(GraphicNode node)
+    {
+        mainPane.getChildren().addAll(node.circle,node.keyText);
+        linkPane.getChildren().addAll(node.leftLink,node.rightLink);
+        if(node.leftChild instanceof GraphicNullNode)
+            mainPane.getChildren().addAll(node.leftChild.circle,node.leftChild.keyText);
+        if(node.rightChild instanceof GraphicNullNode)
+            mainPane.getChildren().addAll(node.rightChild.circle,node.rightChild.keyText);
     }
 
 }
