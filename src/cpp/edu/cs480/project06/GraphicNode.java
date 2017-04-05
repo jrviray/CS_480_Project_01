@@ -1,15 +1,18 @@
 package cpp.edu.cs480.project06;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 
 /**
  * Created by wxy03 on 4/3/2017.
  */
-public class GraphicNode {
+public class GraphicNode extends Group {
 
     /**
      * This color is for filling the red nodes
@@ -47,46 +50,45 @@ public class GraphicNode {
     /**
      * This represents the circle shape of the node
      */
-    protected Circle circle;
+    private Circle circle;
 
     /**
      * This two represents the link between this node and its children
      */
-    protected Line rightLink;
+    private Line rightLink;
 
-    protected Line leftLink;
+    private Line leftLink;
 
-    protected GraphicNode leftChild;
+    private GraphicNode leftChild;
 
-    protected  GraphicNode rightChild;
+    private  GraphicNode rightChild;
 
+    private GraphicNode parent;
 
     /**
      * This represents the value on the node
      */
-    protected Text keyText;
+    private Text keyText;
 
     /**
      * This represents the parent of this node currently on the graphic, and
      * it does not necessarily always coincide with the actually parent node
      * on the RBTree.
      */
-    protected GraphicNode parentGraphicNode;
 
-
-
-    public GraphicNode(){}
 
 
     /**
-     * This is the default consturctor for GraphicNode, and it will only initialize
+     * This is the default constructor for GraphicNode, and it will only initialize
      * the {@link #circle} with red and {@link #keyText}
      * @param x
      *          the initial center x for circle
      * @param y
      *          the initial center y for circle
+     * @param value
+     *          the value of this node
      */
-    public GraphicNode(double x,double y,int key)
+    public GraphicNode(double x,double y,String value)
     {
         //initialize the circle and keyText
         circle=new Circle(RADIUS);
@@ -94,59 +96,29 @@ public class GraphicNode {
         circle.setTranslateX(x);
         circle.setTranslateY(y);
         //format the key into four digit with leading zero
-        keyText=new Text(String.format("%04d",key));
-        setColor(RED);
+        keyText=new Text(value);
+        keyText.setFont(Font.font(14));
+        double H =  keyText.getBoundsInLocal().getHeight();
+        double W = keyText.getBoundsInLocal().getWidth();
+        keyText.translateXProperty().bind(getXProperty().subtract(W/2));
+        keyText.translateYProperty().bind(getYProperty().add(H/4));
         //bind the keyText with the circle so that they always stay in the same relative position
-        bindText();
-
-
 
         rightLink=new Line();
-        rightLink.startXProperty().bind(circle.translateXProperty());
-        rightLink.startYProperty().bind(circle.translateYProperty());
+        rightLink.startXProperty().bind(getXProperty());
+        rightLink.startYProperty().bind(getYProperty());
         rightLink.setVisible(false);
         leftLink = new Line();
-        leftLink.startXProperty().bind(circle.translateXProperty());
-        leftLink.startYProperty().bind(circle.translateYProperty());
+        leftLink.startXProperty().bind(getXProperty());
+        leftLink.startYProperty().bind(getYProperty());
         leftLink.setVisible(false);
-
         //the starting point of two links will always bind to this node
         //links are not visible before it connect to its children
-    }
 
-    /**
-     * This is a aiding method to bind the text Text with the circle
-     */
-    protected void bindText()
-    {
-       double H =  keyText.getBoundsInLocal().getHeight();
-       double W = keyText.getBoundsInLocal().getWidth();
-        keyText.translateXProperty().bind(circle.translateXProperty().subtract(W/2));
-        keyText.translateYProperty().bind(circle.translateYProperty().add(H/4));
-    }
-
-    /**
-     * This method is used to bind the link of this {@link GraphicNode} with its current Children
-     * Notice: this method is only for binding the {@link #leftLink} or {@link #rightLink},
-     * not for bind the relative position of {@link #circle}
-     * Also, this method will make the links visible
-     * @param isLeft
-     *              specify which child is being connected. {@code true} for left child,
-     *              {@code false} for right child.
-     */
-    public void connectChild(boolean isLeft)
-    {
-        if(isLeft) {
-            leftLink.endXProperty().bind(leftChild.circle.translateXProperty());
-            leftLink.endYProperty().bind(leftChild.circle.translateYProperty());
-            leftLink.setVisible(true);
-        }
-        else {
-            rightLink.endXProperty().bind(rightChild.circle.translateXProperty());
-            rightLink.endYProperty().bind(rightChild.circle.translateYProperty());
-            rightLink.setVisible(true);
-        }
-
+        getChildren().addAll(keyText,circle,rightLink,leftLink);
+        keyText.toFront();
+        rightLink.toBack();
+        leftLink.toBack();
     }
 
 
@@ -177,48 +149,144 @@ public class GraphicNode {
         }
     }
 
+
     /**
-     * This method is used to check whether this {@link GraphicNode} has null node
-     * but not shown in the Graphic. Also, if there is such condition, a {@link GraphicNullNode}
+     * This method is used to check whether this {@link GraphicNode} has left null node
+     * but not shown in the Graphic. Also, if there is such condition, a null node
      * will be added
-     * @param isLeft
-     *              specify which child is being checked. {@code true} for left child,
-     *              {@code false} for right child.
      * @return
      * {@code true} if a new null node is being added, {@code false} if not
      */
-    public boolean fillNullNode(boolean isLeft)
+    public boolean checkLeftNullNode()
     {
-
-        if(isLeft) {
             if (leftChild == null) {
-                leftChild = new GraphicNullNode(this);
-                leftChild.circle.setTranslateX(circle.getTranslateX());
-                leftChild.circle.setTranslateY(circle.getTranslateY());
+                GraphicNode leftChild = new GraphicNode(getX(),getY(),"NULL");
+                leftChild.setColor(BLACK);
+                leftChild.setParent(this);
+                setLeftChild(leftChild);
                 return true;
             } else
                 return false;
-        }
-        else {
-            if (rightChild == null) {
-                rightChild = new GraphicNullNode(this);
-                rightChild.circle.setTranslateX(circle.getTranslateX());
-                rightChild.circle.setTranslateY(circle.getTranslateY());
-                return true;
-            } else
-                return false;
-        }
+    }
+
+    /**
+     * This method is used to check whether this {@link GraphicNode} has right null node
+     * but not shown in the Graphic. Also, if there is such condition, a null node
+     * will be added
+     * @return
+     * {@code true} if a new null node is being added, {@code false} if not
+     */
+    public boolean checkRightNullNode() {
+        if (getRightChildNode() == null) {
+            GraphicNode rightChild = new GraphicNode(getX(),getY(),"NULL");
+            rightChild.setColor(BLACK);
+            rightChild.setParent(this);
+            setRightChild(rightChild);
+            return true;
+        } else
+            return false;
     }
 
 
+    /**
+     * This method is used to bind the current position of this {@link GraphicNode} with its
+     * {@link #getParentNode()}. Once the binding done, the relative position between them
+     * will remains the same
+     */
     public void bindCurrentParent()
     {
-        //bind the null node with parent node
-        double XDiff=parentGraphicNode.circle.getTranslateX()-circle.getTranslateX();
-        double YDiff=parentGraphicNode.circle.getTranslateY()-circle.getTranslateY();
-        circle.translateXProperty().bind(parentGraphicNode.circle.translateXProperty().subtract(XDiff));
-        circle.translateYProperty().bind(parentGraphicNode.circle.translateYProperty().subtract(YDiff));
+        double XDiff=getParentNode().getX()-getX();
+        double YDiff=getParentNode().getY()-getY();
+        getXProperty().bind(getParentNode().getXProperty().subtract(XDiff));
+        getYProperty().bind(getParentNode().getYProperty().subtract(YDiff));
 
+    }
+
+
+    public double getX()
+    {
+        return circle.getTranslateX();
+    }
+
+    public double getY()
+    {
+        return circle.getTranslateY();
+    }
+
+    public GraphicNode getLeftChildNode()
+    {
+        return leftChild;
+    }
+
+    public GraphicNode getRightChildNode()
+    {
+        return rightChild;
+    }
+
+    public GraphicNode getParentNode()
+    {
+        return parent;
+    }
+
+    public DoubleProperty getXProperty()
+    {
+        return circle.translateXProperty();
+    }
+
+    public DoubleProperty getYProperty()
+    {
+        return circle.translateYProperty();
+    }
+
+    /**
+     *This method can set the node a parent, but will not bind the relative position with the
+     * new parent node
+     * @param parent
+     */
+    public void setParent(GraphicNode parent)
+    {
+        this.parent=parent;
+    }
+
+
+    /**
+     * This method will bind the link of this {@link GraphicNode} with {@link #leftChild}
+     * Also, this method will make the left link visible
+     * Notice: this method will not bind  the relative position of between them
+     */
+    public void setLeftChild(GraphicNode leftChild)
+    {
+        this.leftChild=leftChild;
+        leftLink.endXProperty().bind(getLeftChildNode().getXProperty());
+        leftLink.endYProperty().bind(getLeftChildNode().getYProperty());
+        leftLink.setVisible(true);
+    }
+
+    /**
+     * This method will bind the link of this {@link GraphicNode} with {@link #rightChild}
+     * Also, this method will make the left link visible
+     * Notice: this method will not bind  the relative position of between them
+     */
+    public void setRightChild(GraphicNode rightChild)
+    {
+        this.rightChild=rightChild;
+        rightLink.endXProperty().bind(getRightChildNode().getXProperty());
+        rightLink.endYProperty().bind(getRightChildNode().getYProperty());
+        rightLink.setVisible(true);
+    }
+
+    /**
+     * This will return a {@link Circle} which is the main Shape for any animation
+     * @return
+     */
+    public Circle getCircle()
+    {
+        return circle;
+    }
+
+    public void setValue(String value)
+    {
+        keyText.setText(value);
     }
 
 }

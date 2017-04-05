@@ -15,7 +15,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -39,9 +38,6 @@ public class GUI extends Application {
      * This is the main Pane where the animation of RB Tree happens
      */
     private Pane mainPane;
-
-    private Pane linkPane;
-
 
     private TextField inputValue;
 
@@ -126,11 +122,8 @@ public class GUI extends Application {
         mainPane=new Pane();
         mainPane.setPadding(new Insets(20,20,20,20));
 
-        linkPane= new Pane();
-        StackPane stackPane= new StackPane();
-        stackPane.getChildren().addAll(linkPane,mainPane);
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(stackPane);
+        scrollPane.setContent(mainPane);
         scrollPane.setFitToWidth(true);
         scrollPane.setPrefViewportHeight(mainPaneHeight);
         scrollPane.setPrefViewportWidth(mainPaneWidth);
@@ -159,7 +152,8 @@ public class GUI extends Application {
             addButton.setDisable(true);
             deleteButton.setDisable(true);
             // the add button and delete button is disable before the animation ends
-            GraphicNode newNode = new GraphicNode(40f,40f,key);
+            GraphicNode newNode = new GraphicNode(40f,40f,String.format("%04d",key));
+            newNode.setColor(GraphicNode.RED);
             //the Node is ready on the left top corner, then draw the node
             drawNode(newNode);
 
@@ -167,7 +161,7 @@ public class GUI extends Application {
 
             //here begins the animation
             moveNodeAnimation(newNode,mainPane.getWidth()/2,
-                    newNode.circle.getTranslateY(),
+                    newNode.getY(),
                     3f,
                     actionEvent -> {fixButton.setDisable(false);
                         drawNullNode(newNode);});
@@ -209,8 +203,8 @@ public class GUI extends Application {
      */
     private void drawNode(GraphicNode node)
     {
-        mainPane.getChildren().addAll(node.circle,node.keyText);
-        linkPane.getChildren().addAll(node.leftLink,node.rightLink);
+        mainPane.getChildren().add(node);
+        node.toFront();
     }
 
 
@@ -225,31 +219,27 @@ public class GUI extends Application {
         //if there is a null node to draw, this value set true and output such action to user
 
         //check if there is a null node in the left but not draw
-        if(node.fillNullNode(true)) {
+        if(node.checkLeftNullNode()) {
             hasNull=true;
-            //connect the link
-            node.connectChild(true);
-
-            mainPane.getChildren().addAll(node.leftChild.circle, node.leftChild.keyText);
+            drawNode(node.getLeftChildNode());
             //do the animation
-            moveNodeAnimation(node.leftChild,
-                    node.circle.getTranslateX()-GraphicNode.RADIUS*3,
-                    node.circle.getTranslateY()+GraphicNode.RADIUS*3,
+            moveNodeAnimation(node.getLeftChildNode(),
+                    node.getX()-GraphicNode.RADIUS*1.5,
+                    node.getY()+GraphicNode.RADIUS*2,
                     2f,
-                    actionEvent -> {node.leftChild.bindCurrentParent();});
+                    actionEvent -> {node.getLeftChildNode().bindCurrentParent();});
 
         }
 
         //check if there is a null node in the right but not draw
-        if(node.fillNullNode(false)) {
+        if(node.checkRightNullNode()) {
             hasNull=true;
-            node.connectChild(false);
-            mainPane.getChildren().addAll(node.rightChild.circle, node.rightChild.keyText);
-            moveNodeAnimation(node.rightChild,
-                    node.circle.getTranslateX()+GraphicNode.RADIUS*3,
-                    node.circle.getTranslateY()+GraphicNode.RADIUS*3,
+            drawNode(node.getRightChildNode());
+            moveNodeAnimation(node.getRightChildNode(),
+                    node.getX()+GraphicNode.RADIUS*1.5,
+                    node.getY()+GraphicNode.RADIUS*2,
                     2f,
-                    actionEvent -> {node.rightChild.bindCurrentParent();});
+                    actionEvent -> {node.getRightChildNode().bindCurrentParent();});
         }
         if(hasNull)
             outputString("Fill up null node");
@@ -274,7 +264,7 @@ public class GUI extends Application {
                                    double targetY, double second,
                                    EventHandler<ActionEvent> afterEvent)
     {
-        TranslateTransition tt = new TranslateTransition(Duration.seconds(second),sourceNode.circle);
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(second),sourceNode.getCircle());
         tt.setToX(targetX);
         tt.setToY(targetY);
         tt.setOnFinished(afterEvent);
