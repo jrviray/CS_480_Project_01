@@ -10,25 +10,18 @@ import javafx.scene.text.Text;
  */
 public class GraphicNullNode extends GraphicNode {
 
-    public GraphicNullNode(GraphicNode parent,boolean isLeft)
+    public GraphicNullNode(GraphicNode parent)
     {
         circle=new Circle(RADIUS);
 
         keyText=new Text("NULL");
         keyText.setFont(Font.font(14));
 
+        parentGraphicNode=parent;
         setColor(BLACK);
         //bind the keyText with the circle so that they always stay in the same relative position
         bindText();
 
-        parentGraphicNode=parent;
-
-        //bind the null node with parent node
-        if(isLeft)
-            circle.translateXProperty().bind(parent.circle.translateXProperty().subtract(40f));
-        else
-            circle.translateXProperty().bind(parent.circle.translateXProperty().add(40f));
-        circle.translateYProperty().bind(parent.circle.translateYProperty().add(40f));
-
     }
+
 }

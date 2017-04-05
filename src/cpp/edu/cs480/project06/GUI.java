@@ -6,14 +6,20 @@ package cpp.edu.cs480.project06;
 
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
 
 public class GUI extends Application {
 
@@ -160,7 +166,11 @@ public class GUI extends Application {
             //here inform the backend to do the insertion and ask a node to return
 
             //here begins the animation
-            addNodeAnimation(newNode);
+            moveNodeAnimation(newNode,mainPane.getWidth()/2,
+                    newNode.circle.getTranslateY(),
+                    3f,
+                    actionEvent -> {fixButton.setDisable(false);
+                        drawNullNode(newNode);});
             outputString("adding "+key+" to the tree");
 
         }
@@ -172,18 +182,6 @@ public class GUI extends Application {
     }
 
 
-    /**
-     * This method is handling the animation for adding new Node
-     * @param currentNode
-     */
-    private void addNodeAnimation(GraphicNode currentNode)
-    {
-        TranslateTransition tt = new TranslateTransition(Duration.seconds(3f),currentNode.circle);
-        tt.setToX(mainPane.getWidth()/2);
-        tt.setOnFinished(event -> {fixButton.setDisable(false);});
-        tt.play();
-
-    }
 
     /**
      * This method is used to reset the output text on the bottom of the application
@@ -206,18 +204,84 @@ public class GUI extends Application {
 
     /**
      * This method is used to draw a node on the graphic interface.
-     * If the node has null child(ren), it(they) will also be drawn.
-     * The node only need to draw once
+     * It also prepare the links of this node.
      * @param node
      */
     private void drawNode(GraphicNode node)
     {
         mainPane.getChildren().addAll(node.circle,node.keyText);
         linkPane.getChildren().addAll(node.leftLink,node.rightLink);
-        if(node.leftChild instanceof GraphicNullNode)
-            mainPane.getChildren().addAll(node.leftChild.circle,node.leftChild.keyText);
-        if(node.rightChild instanceof GraphicNullNode)
-            mainPane.getChildren().addAll(node.rightChild.circle,node.rightChild.keyText);
     }
+
+
+    /**
+     * This method is used to draw the null children with animation of a node
+     * if one has but not being drawn yet
+     * @param node
+     */
+    private void drawNullNode(GraphicNode node)
+    {
+        boolean hasNull=false;
+        //if there is a null node to draw, this value set true and output such action to user
+
+        //check if there is a null node in the left but not draw
+        if(node.fillNullNode(true)) {
+            hasNull=true;
+            //connect the link
+            node.connectChild(true);
+
+            mainPane.getChildren().addAll(node.leftChild.circle, node.leftChild.keyText);
+            //do the animation
+            moveNodeAnimation(node.leftChild,
+                    node.circle.getTranslateX()-GraphicNode.RADIUS*3,
+                    node.circle.getTranslateY()+GraphicNode.RADIUS*3,
+                    2f,
+                    actionEvent -> {node.leftChild.bindCurrentParent();});
+
+        }
+
+        //check if there is a null node in the right but not draw
+        if(node.fillNullNode(false)) {
+            hasNull=true;
+            node.connectChild(false);
+            mainPane.getChildren().addAll(node.rightChild.circle, node.rightChild.keyText);
+            moveNodeAnimation(node.rightChild,
+                    node.circle.getTranslateX()+GraphicNode.RADIUS*3,
+                    node.circle.getTranslateY()+GraphicNode.RADIUS*3,
+                    2f,
+                    actionEvent -> {node.rightChild.bindCurrentParent();});
+        }
+        if(hasNull)
+            outputString("Fill up null node");
+
+    }
+
+    /**
+     * This method is for movement animation for {@link GraphicNode}. Make sure the sourceNode
+     * is not binding with its parent before calling this method.
+     * @param sourceNode
+     *                  The Node that is going to make the movement
+     * @param targetX
+     *                  The x value of target position
+     * @param targetY
+     *                  The y value of target position
+     * @param second
+     *                  The time it takes to finish the animation in second
+     * @param afterEvent
+     *                  The event happens after the animation done
+     */
+    private void moveNodeAnimation(GraphicNode sourceNode, double targetX,
+                                   double targetY, double second,
+                                   EventHandler<ActionEvent> afterEvent)
+    {
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(second),sourceNode.circle);
+        tt.setToX(targetX);
+        tt.setToY(targetY);
+        tt.setOnFinished(afterEvent);
+        tt.play();
+    }
+
+
+
 
 }
