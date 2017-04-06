@@ -20,4 +20,4 @@ created will be schedule to one **Sequential Transition**, and then play the ani
 
 
 ## Illustration
-![Illustration](http://i.imgur.com/Qvz62CY.png)
+![Illustration](http://i.imgur.com/HL58rIB.png)
