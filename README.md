@@ -1,15 +1,23 @@
-# RB Tree Visualization
-## Project Requirement
+# Frontend design
+# Basic
+* GraphicNode: represents a node on the Graphic
+* Node: represents a node on the RB tree
+  (every Node may have a field of GraphicNode that coincide its graphic representation)
 
-One of my favorite classes to teach is CS 241: Data Structures II. In this class, I teach the concept of a self-balancing tree, and in particular, that of a Red-black tree. When I present these structures in class, I use illustrations on the board to discuss them, but I would LOVE to have a program that provide a graphical illustration of the trees, with animations that show how they change as values are added and removed.
+* Animation process:
+  1. The frontend get the user input and call method in RBTree to do the operation
+  2. After the operation done, the backend return all the **sequencial** information the frontend needed for animation
+  3. The frontend will process the info **sequencially** and create each step an animation, and after done, all the animation
+created will be schedule to one **Sequential Transition**, and then play the animation
 
-The requirements for this project are:
+# TO-DO
+- [ ] Node tranversal
+- [ ] Adjust the tree size so that it can have more space for next node
+- [ ] Solely add child node to a specific tree
+- [ ] Color swapping
+- [ ] 4 types of rotation
+- [ ] deletion?
 
-* 1.The program is very simple, upon opening the program presents an empty window, waiting for values.
-* 2.Only integers can be added to the tree.
-* 3.The program provides the capability to specify the next value to be added, and the option to add it. Upon adding a value, the value is shown as being added to the correct position, and if an invariant is broken, it will specify which invariant. In the case that an invariant is broken, it will then give the option to trigger the 'fix' and an animation is triggered that shows the correct rotations and re-colorings, yielding the final tree. A similar process should follow when removing a value.
-* 4.At any time, there should be an option to save the current tree into a file, and to load a tree from a save previously created.
-## Due Date
-04/14 11:59PM
-## Contributing
-System.out, LLC
+
+## Illustration
+![Illustration](http://i.imgur.com/Qvz62CY.png)
