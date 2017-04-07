@@ -1,3 +1,4 @@
+
 # Frontend design
 # Basic
 * GraphicNode: represents a node on the Graphic

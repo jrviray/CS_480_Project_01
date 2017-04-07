@@ -1,5 +1,5 @@
 package cpp.edu.cs480.project06;
-
+// test comment by Bryan
 import javafx.beans.property.DoubleProperty;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
