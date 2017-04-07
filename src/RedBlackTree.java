@@ -678,6 +678,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 	 * nodes as per the structure of a Red Black tree.
 	 */
 	protected class Node {
+		// delete data because we only want the key (which is the number)
 		protected K key;
 		protected V data;
 		protected Node leftChild, rightChild, parent;;
