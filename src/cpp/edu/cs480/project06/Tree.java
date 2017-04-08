@@ -1,23 +1,5 @@
-/**
- * CS 241: Data Structures and Algorithms II
- * Professor: Edwin Rodr�guez
- *
- * Programming Assignment #3
- *
- * This assignment details the implementation of a 
- * Red Black Binary search tree in java. A Red Black tree
- * is a form of self balancing binary search tree that supports
- * a worst case time complexity of O(logn).
- *
- * @author Felix Zhang 
- *   
- */
+package cpp.edu.cs480.project06;
 
-/**
- * Provided Tree interface
- * with basic tree methods.
- *
- */
 public interface Tree<K extends Comparable<K>, V> {
 	
 	/**
@@ -31,7 +13,7 @@ public interface Tree<K extends Comparable<K>, V> {
 	 * This method removes a target node from the tree based on its key value.
 	 * will return an error if the key is not found within the tree. It has
 	 * several helper methods in order to account for different cases when
-	 * removing from a Red Black Tree as well as restoring the invariant of the
+	 * removing from a Red Black cpp.edu.cs480.project06.Tree as well as restoring the invariant of the
 	 * Red black tree.
 	 */
 	public V remove(K key);

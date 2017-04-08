@@ -1,5 +1,5 @@
 package cpp.edu.cs480.project06;
-// test comment by Bryan
+
 import javafx.beans.property.DoubleProperty;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
@@ -8,10 +8,6 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
-
-/**
- * Created by wxy03 on 4/3/2017.
- */
 public class GraphicNode extends Group {
 
     /**
@@ -75,7 +71,6 @@ public class GraphicNode extends Group {
      * it does not necessarily always coincide with the actually parent node
      * on the RBTree.
      */
-
 
 
     /**

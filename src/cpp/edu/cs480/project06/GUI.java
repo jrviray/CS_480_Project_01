@@ -1,8 +1,4 @@
 package cpp.edu.cs480.project06;
-/**
- * Created by xinyuan_wang on 4/3/17.
- */
-
 
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
@@ -35,7 +31,7 @@ public class GUI extends Application {
             loadButton;
 
     /**
-     * This is the main Pane where the animation of RB Tree happens
+     * This is the main Pane where the animation of RB cpp.edu.cs480.project06.Tree happens
      */
     private Pane mainPane;
 
@@ -106,7 +102,7 @@ public class GUI extends Application {
         rightPane.getChildren().addAll(saveButton,loadButton);
 
         rootPane.setTop(topPane);
-        //done setting up the top part of the UI
+        //done setting up the top part of the cpp.edu.cs480.project06.UI
 
         outputArea = new TextArea();
         outputArea.setFont(Font.font(16));

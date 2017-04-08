@@ -1,4 +1,4 @@
-/**
+package cpp.edu.cs480.project06; /**
  * CS 241: Data Structures and Algorithms II
  * Professor: Edwin Rodr�guez
  *
@@ -15,13 +15,6 @@
 
 import java.util.*;
 
-//test commit and push
-
-/**
- * @author FelixZhang This class represents the Red Black tree implementation.
- *         It was originally a standard Binary Search Tree with modified method
- *         in order to support the Red Black invariant.
- */
 public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 
 	protected final static boolean RED = true;
@@ -273,7 +266,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 	 * This method removes a target node from the tree based on its key value.
 	 * will return an error if the key is not found within the tree. It has
 	 * several helper methods in order to account for different cases when
-	 * removing from a Red Black Tree as well as restoring the invariant of the
+	 * removing from a Red Black cpp.edu.cs480.project06.Tree as well as restoring the invariant of the
 	 * Red black tree.
 	 */
 	public V remove(K key) {

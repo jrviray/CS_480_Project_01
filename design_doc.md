@@ -1,4 +1,4 @@
-# Visual Representation of a Red Black Tree
+# Visual Representation of a Red Black cpp.edu.cs480.project06.Tree
 
 ## Purpose
 
