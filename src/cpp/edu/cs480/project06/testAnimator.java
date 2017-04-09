@@ -16,9 +16,9 @@ import javafx.util.Duration;
  *
  * @author Hunter
  */
-public class testGui {
+public class testAnimator {
     private Pane mainPane;
-    public testGui(Pane mainPane) {
+    public testAnimator(Pane mainPane) {
         this.mainPane = mainPane;
     }
     public void drawNode(GraphicNode node) {

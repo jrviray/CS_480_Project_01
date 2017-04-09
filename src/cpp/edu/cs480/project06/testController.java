@@ -28,7 +28,7 @@ import javafx.stage.Stage;
  */
 public class testController extends Application{
     
-    testGui myTest;
+    testAnimator myTest;
     
     private Scene mainScene;
 
@@ -61,13 +61,12 @@ public class testController extends Application{
         launch(args);
     }
     public void tester() throws Exception{
-        myTest = new testGui(this.mainPane);
+        myTest = new testAnimator(this.mainPane);
         GraphicNode myNode = new GraphicNode(40f,40f,String.format("test1"));
         GraphicNode node2 = new GraphicNode(20f,40f, "test");
         myTest.drawNode(myNode);
         myTest.drawNode(node2);
-        myTest.moveNodeAnimation(myNode, 90, 30, 3f, null);
-        myTest.moveNodeAnimation(node2, 90, 30, 3f, null);
+          
     }
     private void initialize() {
         rootPane=new BorderPane();
