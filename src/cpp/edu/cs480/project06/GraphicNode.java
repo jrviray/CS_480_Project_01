@@ -232,12 +232,20 @@ public class GraphicNode extends Group {
         getYProperty().unbind();
     }
 
+    /**
+     * This method will set thsi {@link GraphicNode}'s {@link #leftChild} to {@code null} and
+     * make the {@link #leftLink} invisible.
+     */
     public void deleteLeftChild()
     {
         this.leftChild=null;
         leftLink.setVisible(false);
     }
 
+    /**
+     * This method will set thsi {@link GraphicNode}'s {@link #rightChild} to {@code null} and
+     * make the {@link #rightLink} invisible.
+     */
     public void deleteRightChild()
     {
         this.rightChild=null;
@@ -260,6 +268,20 @@ public class GraphicNode extends Group {
     public void setValue(String value)
     {
         keyText.setText(value);
+    }
+
+
+    /**
+     * This method will check whether this {@link GraphicNode} is a left child or right child
+     * @return
+     * {@code true} if this is a left child, {@code false} if this is a right child
+     */
+    public boolean isLeftChild()
+    {
+        if(getParentNode().getLeftChild()==this)
+            return true;
+        else
+            return false;
     }
 
 }
