@@ -37,6 +37,7 @@ public class UI {
     public UI getQ()
     {
         return q;
+        //test test i dont think it works 
     }
 
 	/**
