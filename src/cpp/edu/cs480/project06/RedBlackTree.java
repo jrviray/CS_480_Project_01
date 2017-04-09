@@ -45,13 +45,13 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 					current = new Node(key, value, RED);
 					current.parent = parent;
 					parent.rightChild = current;
-					addFixTree(current);
 				} else if (key.compareTo(parent.key) < 0) {
 					current = new Node(key, value, RED);
 					current.parent = parent;
 					parent.leftChild = current;
-					addFixTree(current);
 				}
+                // grab current and current.parent to send to queue
+                addFixTree(current);
 			}
 		}
 	}
@@ -776,4 +776,19 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 		}
 
 	}
+    public class Operations
+    {
+        protected final String op;
+        /*
+         Right rotaion
+         Left rotation
+         add
+         remove
+         Node parent
+         Node leftChild
+         Node rightChild
+        */
+        protected final int type;
+        
+    }
 }

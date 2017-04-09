@@ -15,7 +15,6 @@ public class UI {
 	// can only take numbers that range from -128 to 127, due to taking in type Integer.
 	RedBlackTree<Integer, String> tree = new RedBlackTree<Integer, String>();
 	Scanner input = new Scanner(System.in);
-    Queue<E> q = new LinkedList<E>();
 	/**
 	 * This method starts the Red Black tree program.
 	 */
@@ -34,11 +33,7 @@ public class UI {
 		}
 
 	}
-    public UI getQ()
-    {
-        return q;
-        //test test i dont think it works 
-    }
+
 
 	/**
 	 * This method represents the main menu of the Red Black tree user
