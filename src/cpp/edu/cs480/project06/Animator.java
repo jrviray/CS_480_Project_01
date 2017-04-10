@@ -285,14 +285,16 @@ public class Animator {
 
         double targetX=parentNode.getX()+UNIT_DISTANCE,
                 targetY=parentNode.getY()+UNIT_DISTANCE;
+        PauseTransition addNullNode = new PauseTransition(Duration.ONE);
+        addNullNode.setOnFinished(event -> addNullNode(newNodeID,targetX,targetY));
         mainAnimation.getChildren().addAll(
                 this.highlightTraversal(parentNodeID), //add the highlight animation
                 adjustmentAnimation, //add adjustment animation
                 //add the movement animation
                 this.movementTo(newNode, targetX, targetY,
-                        actionEvent->{newNode.bindToParent(parentNode); //when finished, bind with parent
-                                        this.addNullNode(newNodeID,targetX,targetY);}   //add null children
-                ));
+                        actionEvent->{newNode.bindToParent(parentNode);}), //when finished, bind with parent
+                addNullNode
+                );
         return mainAnimation;
 
     }
@@ -392,25 +394,97 @@ public class Animator {
 
         }
     }
-//
-//    /**
-//     * This method is to generate an animation for rotating node left
-//     * @param rotateNodeID
-//     * @return
-//     */
-//    public SequentialTransition rotateLeftAnimation(int rotateNodeID)
-//    {
-//    }
-//
-//    /**
-//     * This method is to generate an animation for rotating node right
-//     * @param rotateNodeID
-//     * @return
-//     */
-//    public SequentialTransition rotateRightAnimation(int rotateNodeID)
-//    {
-//
-//    }
+
+    /**
+     * This method is to generate an animation for rotating node left
+     * @param rotateNodeID
+     * @return
+     */
+    public SequentialTransition rotateLeftAnimation(int rotateNodeID)
+    {
+        GraphicNode topNode = getNode(rotateNodeID);
+        boolean isLeftChild = topNode.isLeftChild();
+        GraphicNode parentNode = topNode.getParentNode();
+        GraphicNode bottomNode = topNode.getRightChild();
+        GraphicNode exchangeNode = bottomNode.getLeftChild();
+
+        SequentialTransition mainAnimation = new SequentialTransition();
+        topNode.highlightRightLink();
+        PauseTransition highlight = new PauseTransition(Duration.seconds(2));
+        highlight.setOnFinished(event -> {topNode.unhighlightRightLink();
+        topNode.unbindParent();
+        bottomNode.unbindParent();
+        topNode.setRightChild(exchangeNode);
+        bottomNode.setLeftChild(topNode);
+        exchangeNode.unbindParent();
+            if(parentNode!=null)
+            {
+                if(isLeftChild)
+                    parentNode.setLeftChild(bottomNode);
+                else
+                    parentNode.setRightChild(bottomNode);
+            }
+            resetOverlay(topNode);
+        });
+        ParallelTransition rotate = new ParallelTransition();
+
+        rotate.getChildren().addAll(movementBy(bottomNode,0,-UNIT_DISTANCE,event -> {bottomNode.bindToParent(parentNode);})
+                                    ,movementBy(topNode,0,UNIT_DISTANCE,event -> {topNode.bindToParent(bottomNode);
+                                                                                        exchangeNode.bindToParent(topNode);}));
+        mainAnimation.getChildren().addAll(highlight,rotate);
+        return mainAnimation;
+    }
+
+    private void resetOverlay(GraphicNode node)
+    {
+        node.toFront();
+        if(node.getLeftChild()!=null)
+            resetOverlay(node.getLeftChild());
+        if(node.getRightChild()!=null)
+            resetOverlay(node.getRightChild());
+
+    }
+
+    /**
+     * This method is to generate an animation for rotating node right
+     * @param rotateNodeID
+     * @return
+     */
+    public SequentialTransition rotateRightAnimation(int rotateNodeID)
+    {
+
+        GraphicNode topNode = getNode(rotateNodeID);
+        Boolean isLeftChild = topNode.isLeftChild();
+        GraphicNode parentNode = topNode.getParentNode();
+        GraphicNode bottomNode = topNode.getLeftChild();
+        GraphicNode exchangeNode = bottomNode.getRightChild();
+
+        SequentialTransition mainAnimation = new SequentialTransition();
+        topNode.highlightLeftLink();
+        PauseTransition highlight = new PauseTransition(Duration.seconds(2));
+        highlight.setOnFinished(event -> {topNode.unhighlightLeftLink();
+            topNode.unbindParent();
+            bottomNode.unbindParent();
+            topNode.setLeftChild(exchangeNode);
+            bottomNode.setRightChild(topNode);
+            exchangeNode.unbindParent();
+            if(parentNode!=null)
+            {
+                if(isLeftChild)
+                    parentNode.setLeftChild(bottomNode);
+                else
+                    parentNode.setRightChild(bottomNode);
+            }
+            resetOverlay(topNode);
+        });
+        ParallelTransition rotate = new ParallelTransition();
+
+        rotate.getChildren().addAll(movementBy(bottomNode,0,-UNIT_DISTANCE,event -> {bottomNode.bindToParent(parentNode);})
+                ,movementBy(topNode,0,UNIT_DISTANCE,event -> {topNode.bindToParent(bottomNode);
+                    exchangeNode.bindToParent(topNode);}));
+        mainAnimation.getChildren().addAll(highlight,rotate);
+        return mainAnimation;
+    }
 //
 //    /**
 //     * This method is to generate an animation for recoloring

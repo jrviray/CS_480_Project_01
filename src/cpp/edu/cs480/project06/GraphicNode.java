@@ -162,6 +162,8 @@ public class GraphicNode extends Group {
             getXProperty().bind(getParentNode().getXProperty().subtract(XDiff));
             getYProperty().bind(getParentNode().getYProperty().subtract(YDiff));
         }
+        else
+            parent=null;
 
     }
 
@@ -294,26 +296,26 @@ public class GraphicNode extends Group {
 
     public void highlightLeftLink()
     {
-        leftLink.setFill(HIGHTLIGHT);
-        leftLink.setStrokeWidth(1.5f);
+        leftLink.setStroke(HIGHTLIGHT);
+        leftLink.setStrokeWidth(3f);
     }
 
     public void highlightRightLink()
     {
-        rightLink.setFill(HIGHTLIGHT);
-        rightLink.setStrokeWidth(1.5f);
+        rightLink.setStroke(HIGHTLIGHT);
+        rightLink.setStrokeWidth(3f);
     }
 
     public void unhighlightLeftLink()
     {
-        leftLink.setFill(Color.BLACK);
+        leftLink.setStroke(Color.BLACK);
         leftLink.setStrokeWidth(1f);
     }
 
 
     public void unhighlightRightLink()
     {
-        rightLink.setFill(Color.BLACK);
+        rightLink.setStroke(Color.BLACK);
         rightLink.setStrokeWidth(1f);
     }
 

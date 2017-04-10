@@ -91,32 +91,30 @@ public class TestAnimationUI extends Application {
                 break;
             case 3:
                 animator.generateNode(type-1);
-                thisAnimation=animator.insertRightAnimation(type-1,0);
+                thisAnimation=animator.insertLeftAnimation(type-1,1);
                 break;
             case 4:
                 animator.generateNode(type-1);
-                thisAnimation=animator.insertLeftAnimation(type-1,2);
-                break;
-            case 5:
-                animator.generateNode(type-1);
-                thisAnimation=animator.insertRightAnimation(type-1,3);
-                break;
-            case 6:
-                animator.generateNode(type-1);
-                thisAnimation=animator.insertLeftAnimation(type-1,4);
-                break;
-            case 7:
-                animator.generateNode(type-1);
                 thisAnimation=animator.insertRightAnimation(type-1,2);
                 break;
-//            case 8:
+//           case 5:
 //                animator.generateNode(type-1);
-//                thisAnimation=animator.insertLeftAnimation(type-1,4);
+//                thisAnimation=animator.insertRightAnimation(type-1,3);
 //                break;
-//            case 9:
+//            case 6:
 //                animator.generateNode(type-1);
-//                thisAnimation=animator.insertLeftAnimation(type-1,7);
+//                thisAnimation=animator.insertRightAnimation(type-1,4);
 //                break;
+//            case 7:
+//                animator.generateNode(type-1);
+//                thisAnimation=animator.insertRightAnimation(type-1,2);
+//                break;
+            case 8:
+                thisAnimation=animator.rotateRightAnimation(0);
+                break;
+            case 9:
+                thisAnimation=animator.rotateRightAnimation(1);
+                break;
 
         }
 
