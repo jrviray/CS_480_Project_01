@@ -41,10 +41,9 @@ public class GUI extends Application {
 
 
     private TextArea outputArea;
-
-
-
-    public static void main(String[] args) {
+    
+    public static void main(String[] args) 
+    {
         launch(args);
     }
 
@@ -52,7 +51,7 @@ public class GUI extends Application {
     public void start(Stage primaryStage) {
 
         initialize();
-        primaryStage.setTitle("RedBlackTreeVisualization");
+        primaryStage.setTitle("Red/Black Tree Visualization");
         primaryStage.setScene(mainScene);
         primaryStage.show();
         test();
@@ -171,8 +170,8 @@ public class GUI extends Application {
 
     }
 
-
-
+    
+    
     /**
      * This method is used to reset the output text on the bottom of the application
      */
@@ -260,6 +259,7 @@ public class GUI extends Application {
                                    double targetY, double second,
                                    EventHandler<ActionEvent> afterEvent)
     {
+        
         TranslateTransition tt = new TranslateTransition(Duration.seconds(second),sourceNode.getCircle());
         tt.setToX(targetX);
         tt.setToY(targetY);
