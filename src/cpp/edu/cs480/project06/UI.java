@@ -4,6 +4,7 @@ package cpp.edu.cs480.project06;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.util.*;
 
 /**
  * This class represents the User Interface that the user sees when using the
@@ -14,7 +15,6 @@ public class UI {
 	// can only take numbers that range from -128 to 127, due to taking in type Integer.
 	RedBlackTree<Integer, String> tree = new RedBlackTree<Integer, String>();
 	Scanner input = new Scanner(System.in);
-
 	/**
 	 * This method starts the Red Black tree program.
 	 */
@@ -33,6 +33,7 @@ public class UI {
 		}
 
 	}
+
 
 	/**
 	 * This method represents the main menu of the Red Black tree user
@@ -75,55 +76,24 @@ public class UI {
 	 * This method adds a kev value pair as a node into the Red Black tree.
 	 * Afterwards it displays the tree to confirm that the node has been added.
 	 */
-	public void addNode() {
+	public void addNode(int key) {
 		int key = 0;
-		String data = "";
-
-		System.out.println();
-		System.out.println("Enter an integer key and string value:");
-		key = input.nextInt();
-		data = input.nextLine();
-		input.next();
-
 		tree.add(key, data);
-		displayTree();
-		System.out.println();
-	}
+    }
 
 	/**
 	 * This method removes a node from the tree based on its key. Afterwards the
 	 * tree is updated and displayed again to confirm the removal of the node.
 	 */
-	public void removeNode() {
-		int removeKey = 0;
-
-		System.out.println();
-		System.out.println("Enter the key of the node you want to remove.");
-		removeKey = input.nextInt();
-
-		
+	public void removeNode(int removeKey) {
 		tree.remove(removeKey);
-		displayTree();
-		System.out.println("If nothing is displayed, cpp.edu.cs480.project06.Tree is empty!");
-		System.out.println();
 	}
 
 	/**
 	 * This method searches the tree based on the inputted Key.
 	 */
-	public void lookupKey() {
-		int searchKey = 0;
-
-		System.out.println();
-		System.out.print("Enter the key of the node to search for:");
-		searchKey = input.nextInt();
-		
-		
-		System.out.println("The value of node with key " + searchKey + " is: " + tree.lookup(searchKey));
-		System.out.println();
-		displayTree();
-		System.out.println();
-		
+	public void lookupKey(int searchKey) {
+        tree.lookup(searchKey)
 	}
 
 	/**
@@ -133,4 +103,5 @@ public class UI {
 	public void displayTree() {
 		System.out.println(tree.toPrettyString());
 	}
+    
 }
