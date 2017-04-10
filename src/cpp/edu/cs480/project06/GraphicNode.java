@@ -57,7 +57,7 @@ public class GraphicNode extends Group {
 
     private GraphicNode leftChild;
 
-    private GraphicNode rightChild;
+    private  GraphicNode rightChild;
 
     private GraphicNode parent;
 
