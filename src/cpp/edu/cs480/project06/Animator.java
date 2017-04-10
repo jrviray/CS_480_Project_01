@@ -99,7 +99,7 @@ public class Animator {
      */
     private TranslateTransition movementTo(Circle target, double x, double y, EventHandler<ActionEvent> onFinish)
     {
-        TranslateTransition movementTo = new TranslateTransition(Duration.seconds(2),target);
+        TranslateTransition movementTo = new TranslateTransition(Duration.seconds(1),target);
         movementTo.setToX(x);
         movementTo.setToY(y);
         movementTo.setOnFinished(onFinish);
@@ -130,7 +130,7 @@ public class Animator {
      */
     private TranslateTransition movementBy(GraphicNode target, double x, double y, EventHandler<ActionEvent> onFinish)
     {
-        TranslateTransition movementBy = new TranslateTransition(Duration.seconds(2),target.getCircle());
+        TranslateTransition movementBy = new TranslateTransition(Duration.seconds(1),target.getCircle());
         movementBy.setByX(x);
         movementBy.setByY(y);
         movementBy.setOnFinished(onFinish);
@@ -138,11 +138,14 @@ public class Animator {
     }
 
 
-
-
-
+    /**
+     * This is the aiding method thar creates an animation for position adjustment, it push
+     * all the parents node that are less than this node move to left
+     * @param parentNodeID
+     * @return
+     */
     private ParallelTransition leftAdjustment(int parentNodeID) {
-        //make all the parents that is less than move to left
+        //make all the parents that are less than move to left
 
         ParallelTransition mainAnimation = new ParallelTransition();
         GraphicNode currentNode = getNode(parentNodeID);
@@ -161,9 +164,6 @@ public class Animator {
             currentNode=currentNode.getParentNode();
         }
 
-
-
-
         while (!movingQueue.isEmpty()) {
             GraphicNode movingNode=movingQueue.poll();
             GraphicNode unbindNode=unbindQueue.poll();
@@ -181,8 +181,13 @@ public class Animator {
         return mainAnimation;
     }
 
+    /**
+     * This is the aiding method thar creates an animation for position adjustment, it push
+     * all the parents node that are greater than this node to the right
+     * @param parentNodeID
+     * @return
+     */
     private ParallelTransition rightAdjustment(int parentNodeID) {
-        //make all the parents that is greater than move to right
 
         ParallelTransition mainAnimation = new ParallelTransition();
         GraphicNode currentNode = getNode(parentNodeID);
@@ -200,9 +205,6 @@ public class Animator {
             }
             currentNode=currentNode.getParentNode();
         }
-
-
-
 
         while (!movingQueue.isEmpty()) {
             GraphicNode movingNode=movingQueue.poll();
@@ -228,12 +230,14 @@ public class Animator {
      * @param newNodeID
      * @return
      */
-    public TranslateTransition insertRootAnimation(int newNodeID)
+    public SequentialTransition insertRootAnimation(int newNodeID)
     {
+        SequentialTransition mainAnimation = new SequentialTransition();
         GraphicNode newNode = getNode(newNodeID);
         newNode.setColor(GraphicNode.BLACK);
-        TranslateTransition mainAnimation = movementTo(newNode,mainPane.getWidth()/2,
-                            newNode.getY(),null);
+        TranslateTransition movementAnimation = movementTo(newNode,mainPane.getWidth()/2, newNode.getY(),
+                event->{addNullNode(newNodeID,mainPane.getWidth()/2,newNode.getY());});
+        mainAnimation.getChildren().add(movementAnimation);
         return mainAnimation;
     }
 
@@ -249,14 +253,17 @@ public class Animator {
         ParallelTransition adjustmentAnimation = this.leftAdjustment(parentNodeID);
         GraphicNode parentNode=getNode(parentNodeID),
                     newNode=getNode(newNodeID);
-        adjustmentAnimation.setOnFinished(actionEvent->{parentNode.setLeftChild(newNode);}); //create the link
+        adjustmentAnimation.setOnFinished(actionEvent->{this.removeFromCanvas(parentNode.getLeftChild());  //remove the null node
+            parentNode.setLeftChild(newNode); });  //create the link
+        double targetX=parentNode.getX()-UNIT_DISTANCE,
+                targetY=parentNode.getY()+UNIT_DISTANCE;
         mainAnimation.getChildren().addAll(
                                     this.highlightTraversal(parentNodeID), //add the highlight animation
                                     adjustmentAnimation, //add adjustment animation
-                                    this.movementTo(newNode,    //add the movement animation
-                        parentNode.getX()-UNIT_DISTANCE,
-                        parentNode.getY()+UNIT_DISTANCE,
-                        actionEvent->{newNode.bindToParent(parentNode);}    //when finished, bind with parent
+                                    //add the movement animation
+                                    this.movementTo(newNode,targetX,targetY,
+                        actionEvent->{newNode.bindToParent(parentNode);  //when finished, bind with parent
+                                    this.addNullNode(newNodeID,targetX,targetY);}   //add null children
                 ));
         return mainAnimation;
     }
@@ -273,14 +280,18 @@ public class Animator {
         ParallelTransition adjustmentAnimation = this.rightAdjustment(parentNodeID);
         GraphicNode parentNode=getNode(parentNodeID),
                 newNode=getNode(newNodeID);
-        adjustmentAnimation.setOnFinished(actionEvent->{parentNode.setRightChild(newNode);}); //create the link
+        adjustmentAnimation.setOnFinished(actionEvent->{this.removeFromCanvas(parentNode.getRightChild());  //remove the null node
+                                                parentNode.setRightChild(newNode); });  //create the link
+
+        double targetX=parentNode.getX()+UNIT_DISTANCE,
+                targetY=parentNode.getY()+UNIT_DISTANCE;
         mainAnimation.getChildren().addAll(
                 this.highlightTraversal(parentNodeID), //add the highlight animation
                 adjustmentAnimation, //add adjustment animation
-                this.movementTo(newNode,    //add the movement animation
-                        parentNode.getX()+UNIT_DISTANCE,
-                        parentNode.getY()+UNIT_DISTANCE,
-                        actionEvent->{newNode.bindToParent(parentNode);}    //when finished, bind with parent
+                //add the movement animation
+                this.movementTo(newNode, targetX, targetY,
+                        actionEvent->{newNode.bindToParent(parentNode); //when finished, bind with parent
+                                        this.addNullNode(newNodeID,targetX,targetY);}   //add null children
                 ));
         return mainAnimation;
 
@@ -351,6 +362,35 @@ public class Animator {
         highlightCircle.setTranslateX(x);
         highlightCircle.setTranslateY(y);
         return highlightCircle;
+    }
+
+    /**
+     * This is an aiding method to add the null node for a specific node, and this
+     * is not an animation
+     * @param nodeID
+     * @param startX
+     * @param startY
+     */
+    private void addNullNode(int nodeID,double startX,double startY)
+    {
+        GraphicNode thisNode = getNode(nodeID);
+        if(thisNode.getLeftChild()==null)
+        {
+            GraphicNode nullNode = new GraphicNode(startX-NULL_UNIT_DISTANCE,startY+UNIT_DISTANCE,"NULL");
+            nullNode.setColor(GraphicNode.BLACK);
+            nullNode.bindToParent(thisNode);
+            thisNode.setLeftChild(nullNode);
+            drawOnCanvas(nullNode);
+        }
+        if(thisNode.getRightChild()==null)
+        {
+            GraphicNode nullNode = new GraphicNode(startX+NULL_UNIT_DISTANCE,startY+UNIT_DISTANCE,"NULL");
+            nullNode.setColor(GraphicNode.BLACK);
+            nullNode.bindToParent(thisNode);
+            thisNode.setRightChild(nullNode);
+            drawOnCanvas(nullNode);
+
+        }
     }
 //
 //    /**
