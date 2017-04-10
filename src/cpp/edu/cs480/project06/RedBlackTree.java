@@ -70,7 +70,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 
 		} else if (findUncle(target).color == BLACK) {
 			if (target.parent.isLeftChild() && target.isLeftChild()) {
-				info.add(new Instruction("leftRotate " + target + " "));
+				info.add(new Instruction("leftRotate " + target.getData() + " "));
 				addLeftLeftCase(target);
 			} else if (target.parent.isLeftChild() && !target.isLeftChild()) {
 				info.add(new Instruction("leftRotate " + target.getData()));

@@ -31,12 +31,7 @@ public class UI {
 	 */
 	public void start() {
 		System.out.println("Welcome to Red/Black Tree simulator!");
-
 		while (true) {
-			
-			
-			
-		
 			try {
 				mainMenu();
 			} catch (InputMismatchException e) {
@@ -45,11 +40,18 @@ public class UI {
 			} catch (NullPointerException e) {
 				System.out.println("Invalid key, Please try again.\n\n");
 			}
-			
 			System.out.println(tree.info.size());
 			
 			Iterator<RedBlackTree<Integer, String>.Instruction> iter = tree.info.iterator();
-			
+			/*
+             output format
+             <add> <ID> <boolean (left = true && right = false)> <parentID>
+             <remove> <ID>
+             <swap> <IDRoot> <IDTarget>
+             <leftRotate> <ID>
+             <rightRotate> <ID>
+             <recolor> <ID> <BLACK | RED>
+             */
 			while (iter.hasNext()) {
 				System.out.println(iter.next().getInstruction());
 			}
