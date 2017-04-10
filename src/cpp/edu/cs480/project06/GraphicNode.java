@@ -35,6 +35,8 @@ public class GraphicNode extends Group {
      */
     public  final static Color BLACK_STROKE = Color.BLACK;
 
+    public final static Color HIGHTLIGHT = new Color(0.2118, 0.6392, 0.2588, 1);
+
 
     /**
      * This color is for filling key of the black nodes
@@ -102,10 +104,12 @@ public class GraphicNode extends Group {
         rightLink=new Line();
         rightLink.startXProperty().bind(getXProperty());
         rightLink.startYProperty().bind(getYProperty());
+        unhighlightRightLink();
         rightLink.setVisible(false);
         leftLink = new Line();
         leftLink.startXProperty().bind(getXProperty());
         leftLink.startYProperty().bind(getYProperty());
+        unhighlightLeftLink();
         leftLink.setVisible(false);
         //the starting point of two links will always bind to this node
         //links are not visible before it connect to its children
@@ -151,11 +155,13 @@ public class GraphicNode extends Group {
      */
     public void bindToParent(GraphicNode newParent)
     {
-        parent=newParent;
-        double XDiff=getParentNode().getX()-getX();
-        double YDiff=getParentNode().getY()-getY();
-        getXProperty().bind(getParentNode().getXProperty().subtract(XDiff));
-        getYProperty().bind(getParentNode().getYProperty().subtract(YDiff));
+        if(newParent!=null) {
+            parent = newParent;
+            double XDiff = getParentNode().getX() - getX();
+            double YDiff = getParentNode().getY() - getY();
+            getXProperty().bind(getParentNode().getXProperty().subtract(XDiff));
+            getYProperty().bind(getParentNode().getYProperty().subtract(YDiff));
+        }
 
     }
 
@@ -276,12 +282,39 @@ public class GraphicNode extends Group {
      * @return
      * {@code true} if this is a left child, {@code false} if this is a right child
      */
-    public boolean isLeftChild()
+    public Boolean isLeftChild()
     {
-        if(getParentNode().getLeftChild()==this)
+        if(getParentNode()==null)
+            return null;
+        else if(getParentNode().getLeftChild()==this)
             return true;
         else
             return false;
+    }
+
+    public void highlightLeftLink()
+    {
+        leftLink.setFill(HIGHTLIGHT);
+        leftLink.setStrokeWidth(1.5f);
+    }
+
+    public void highlightRightLink()
+    {
+        rightLink.setFill(HIGHTLIGHT);
+        rightLink.setStrokeWidth(1.5f);
+    }
+
+    public void unhighlightLeftLink()
+    {
+        leftLink.setFill(Color.BLACK);
+        leftLink.setStrokeWidth(1f);
+    }
+
+
+    public void unhighlightRightLink()
+    {
+        rightLink.setFill(Color.BLACK);
+        rightLink.setStrokeWidth(1f);
     }
 
 }
