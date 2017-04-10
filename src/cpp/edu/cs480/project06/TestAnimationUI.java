@@ -6,7 +6,6 @@ package cpp.edu.cs480.project06;/**
 
 import javafx.animation.Animation;
 import javafx.animation.PauseTransition;
-import javafx.animation.SequentialTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -16,8 +15,6 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Stack;
 
 public class TestAnimationUI extends Application {
 
@@ -84,18 +81,22 @@ public class TestAnimationUI extends Application {
             case 1:
                 animator.generateNode(type-1);
                 thisAnimation=animator.insertRootAnimation(0);
+                animator.setNullNodeVisible(true);
                 break;
             case 2:
                 animator.generateNode(type-1);
                 thisAnimation=animator.insertLeftAnimation(type-1,0);
+                animator.setNullNodeVisible(false);
                 break;
             case 3:
                 animator.generateNode(type-1);
                 thisAnimation=animator.insertLeftAnimation(type-1,1);
+                animator.setNullNodeVisible(true);
                 break;
             case 4:
                 animator.generateNode(type-1);
                 thisAnimation=animator.insertRightAnimation(type-1,2);
+                animator.setNullNodeVisible(false);
                 break;
 //           case 5:
 //                animator.generateNode(type-1);
@@ -111,10 +112,15 @@ public class TestAnimationUI extends Application {
 //                break;
             case 8:
                 thisAnimation=animator.rotateRightAnimation(0);
+                animator.setNullNodeVisible(true);
                 break;
             case 9:
                 thisAnimation=animator.rotateRightAnimation(1);
+                animator.setNullNodeVisible(false);
+                animator.clearCanvas();
+                animator.redrawTree();
                 break;
+
 
         }
 
