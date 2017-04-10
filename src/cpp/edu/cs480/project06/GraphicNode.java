@@ -35,6 +35,8 @@ public class GraphicNode extends Group {
      */
     public  final static Color BLACK_STROKE = Color.BLACK;
 
+    public final static Color HIGHTLIGHT = new Color(0.2118, 0.6392, 0.2588, 1);
+
 
     /**
      * This color is for filling key of the black nodes
@@ -102,10 +104,12 @@ public class GraphicNode extends Group {
         rightLink=new Line();
         rightLink.startXProperty().bind(getXProperty());
         rightLink.startYProperty().bind(getYProperty());
+        unhighlightRightLink();
         rightLink.setVisible(false);
         leftLink = new Line();
         leftLink.startXProperty().bind(getXProperty());
         leftLink.startYProperty().bind(getYProperty());
+        unhighlightLeftLink();
         leftLink.setVisible(false);
         //the starting point of two links will always bind to this node
         //links are not visible before it connect to its children
@@ -144,56 +148,22 @@ public class GraphicNode extends Group {
         }
     }
 
-
     /**
-     * This method is used to check whether this {@link GraphicNode} has left null node
-     * but not shown in the Graphic. Also, if there is such condition, a null node
-     * will be added
-     * @return
-     * {@code true} if a new null node is being added, {@code false} if not
-     */
-    public boolean checkLeftNullNode()
-    {
-            if (leftChild == null) {
-                GraphicNode leftChild = new GraphicNode(getX(),getY(),"NULL");
-                leftChild.setColor(BLACK);
-                leftChild.setParent(this);
-                setLeftChild(leftChild);
-                return true;
-            } else
-                return false;
-    }
-
-    /**
-     * This method is used to check whether this {@link GraphicNode} has right null node
-     * but not shown in the Graphic. Also, if there is such condition, a null node
-     * will be added
-     * @return
-     * {@code true} if a new null node is being added, {@code false} if not
-     */
-    public boolean checkRightNullNode() {
-        if (getRightChildNode() == null) {
-            GraphicNode rightChild = new GraphicNode(getX(),getY(),"NULL");
-            rightChild.setColor(BLACK);
-            rightChild.setParent(this);
-            setRightChild(rightChild);
-            return true;
-        } else
-            return false;
-    }
-
-
-    /**
-     * This method is used to bind the current position of this {@link GraphicNode} with its
-     * {@link #getParentNode()}. Once the binding done, the relative position between them
+     * This method is used to set and bind the current position of this {@link GraphicNode}
+     * with a new parent Node.Once the binding done,the relative position between them
      * will remains the same
      */
-    public void bindCurrentParent()
+    public void bindToParent(GraphicNode newParent)
     {
-        double XDiff=getParentNode().getX()-getX();
-        double YDiff=getParentNode().getY()-getY();
-        getXProperty().bind(getParentNode().getXProperty().subtract(XDiff));
-        getYProperty().bind(getParentNode().getYProperty().subtract(YDiff));
+        if(newParent!=null) {
+            parent = newParent;
+            double XDiff = getParentNode().getX() - getX();
+            double YDiff = getParentNode().getY() - getY();
+            getXProperty().bind(getParentNode().getXProperty().subtract(XDiff));
+            getYProperty().bind(getParentNode().getYProperty().subtract(YDiff));
+        }
+        else
+            parent=null;
 
     }
 
@@ -208,12 +178,12 @@ public class GraphicNode extends Group {
         return circle.getTranslateY();
     }
 
-    public GraphicNode getLeftChildNode()
+    public GraphicNode getLeftChild()
     {
         return leftChild;
     }
 
-    public GraphicNode getRightChildNode()
+    public GraphicNode getRightChild()
     {
         return rightChild;
     }
@@ -233,15 +203,6 @@ public class GraphicNode extends Group {
         return circle.translateYProperty();
     }
 
-    /**
-     *This method can set the node a parent, but will not bind the relative position with the
-     * new parent node
-     * @param parent
-     */
-    public void setParent(GraphicNode parent)
-    {
-        this.parent=parent;
-    }
 
 
     /**
@@ -252,8 +213,8 @@ public class GraphicNode extends Group {
     public void setLeftChild(GraphicNode leftChild)
     {
         this.leftChild=leftChild;
-        leftLink.endXProperty().bind(getLeftChildNode().getXProperty());
-        leftLink.endYProperty().bind(getLeftChildNode().getYProperty());
+        leftLink.endXProperty().bind(getLeftChild().getXProperty());
+        leftLink.endYProperty().bind(getLeftChild().getYProperty());
         leftLink.setVisible(true);
     }
 
@@ -265,13 +226,42 @@ public class GraphicNode extends Group {
     public void setRightChild(GraphicNode rightChild)
     {
         this.rightChild=rightChild;
-        rightLink.endXProperty().bind(getRightChildNode().getXProperty());
-        rightLink.endYProperty().bind(getRightChildNode().getYProperty());
+        rightLink.endXProperty().bind(getRightChild().getXProperty());
+        rightLink.endYProperty().bind(getRightChild().getYProperty());
         rightLink.setVisible(true);
     }
 
     /**
-     * This will return a {@link Circle} which is the main Shape for any animation
+     * This method is used to unbind the relative position with its parent
+     */
+    public void unbindParent()
+    {
+        getXProperty().unbind();
+        getYProperty().unbind();
+    }
+
+    /**
+     * This method will set thsi {@link GraphicNode}'s {@link #leftChild} to {@code null} and
+     * make the {@link #leftLink} invisible.
+     */
+    public void deleteLeftChild()
+    {
+        this.leftChild=null;
+        leftLink.setVisible(false);
+    }
+
+    /**
+     * This method will set thsi {@link GraphicNode}'s {@link #rightChild} to {@code null} and
+     * make the {@link #rightLink} invisible.
+     */
+    public void deleteRightChild()
+    {
+        this.rightChild=null;
+        rightLink.setVisible(false);
+    }
+
+    /**
+     * This method will return a {@link Circle} which is the main Shape for any animation
      * @return
      */
     public Circle getCircle()
@@ -279,9 +269,54 @@ public class GraphicNode extends Group {
         return circle;
     }
 
+    /**
+     * This meothd will change the value display on the center of the node
+     * @param value
+     */
     public void setValue(String value)
     {
         keyText.setText(value);
+    }
+
+
+    /**
+     * This method will check whether this {@link GraphicNode} is a left child or right child
+     * @return
+     * {@code true} if this is a left child, {@code false} if this is a right child
+     */
+    public Boolean isLeftChild()
+    {
+        if(getParentNode()==null)
+            return null;
+        else if(getParentNode().getLeftChild()==this)
+            return true;
+        else
+            return false;
+    }
+
+    public void highlightLeftLink()
+    {
+        leftLink.setStroke(HIGHTLIGHT);
+        leftLink.setStrokeWidth(3f);
+    }
+
+    public void highlightRightLink()
+    {
+        rightLink.setStroke(HIGHTLIGHT);
+        rightLink.setStrokeWidth(3f);
+    }
+
+    public void unhighlightLeftLink()
+    {
+        leftLink.setStroke(Color.BLACK);
+        leftLink.setStrokeWidth(1f);
+    }
+
+
+    public void unhighlightRightLink()
+    {
+        rightLink.setStroke(Color.BLACK);
+        rightLink.setStrokeWidth(1f);
     }
 
 }
