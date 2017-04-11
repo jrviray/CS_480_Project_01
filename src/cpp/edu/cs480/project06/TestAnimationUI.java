@@ -28,6 +28,8 @@ public class TestAnimationUI extends Application {
 
     private Animator animator;
 
+    boolean v;
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -53,6 +55,10 @@ public class TestAnimationUI extends Application {
         Button testButton = new Button("test");
         rootPane.setBottom(testButton);
         testButton.setOnMouseClicked(event -> test());
+        Button booleanButton = new Button("boolean");
+        rootPane.setTop(booleanButton);
+        v=false;
+        booleanButton.setOnMouseClicked(event -> {if(v)v=false;else v=true;animator.setNullNodeVisible(v);});
     }
 
     private void test()
@@ -81,44 +87,38 @@ public class TestAnimationUI extends Application {
             case 1:
                 animator.generateNode(type-1);
                 thisAnimation=animator.insertRootAnimation(0);
-                animator.setNullNodeVisible(true);
                 break;
             case 2:
                 animator.generateNode(type-1);
                 thisAnimation=animator.insertLeftAnimation(type-1,0);
-                animator.setNullNodeVisible(false);
+
                 break;
             case 3:
                 animator.generateNode(type-1);
                 thisAnimation=animator.insertLeftAnimation(type-1,1);
-                animator.setNullNodeVisible(true);
+
                 break;
             case 4:
                 animator.generateNode(type-1);
-                thisAnimation=animator.insertRightAnimation(type-1,2);
-                animator.setNullNodeVisible(false);
+                thisAnimation=animator.insertRightAnimation(type-1,0);
+
                 break;
-//           case 5:
-//                animator.generateNode(type-1);
-//                thisAnimation=animator.insertRightAnimation(type-1,3);
-//                break;
-//            case 6:
-//                animator.generateNode(type-1);
-//                thisAnimation=animator.insertRightAnimation(type-1,4);
-//                break;
-//            case 7:
-//                animator.generateNode(type-1);
-//                thisAnimation=animator.insertRightAnimation(type-1,2);
-//                break;
+           case 5:
+                animator.generateNode(type-1);
+                thisAnimation=animator.insertRightAnimation(type-1,3);
+                break;
+            case 6:
+
+                thisAnimation=animator.dataSwap(3,4);
+                break;
+            case 7:
+                thisAnimation=animator.deleteAnimation(4);
+                break;
             case 8:
-                thisAnimation=animator.rotateRightAnimation(0);
-                animator.setNullNodeVisible(true);
+                thisAnimation=animator.rotateLeftAnimation(0);
                 break;
             case 9:
-                thisAnimation=animator.rotateRightAnimation(1);
-                animator.setNullNodeVisible(false);
-                animator.clearCanvas();
-                animator.redrawTree();
+                thisAnimation=animator.rotateRightAnimation(0);
                 break;
 
 

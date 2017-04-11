@@ -1,15 +1,14 @@
 package cpp.edu.cs480.project06;
-import javafx.animation.ParallelTransition;
-import javafx.animation.PauseTransition;
-import javafx.animation.SequentialTransition;
-import javafx.animation.TranslateTransition;
+import javafx.animation.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
+import javafx.scene.effect.Bloom;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -52,7 +51,7 @@ public class Animator {
      */
     public int generateNode(int nodeValue)
     {
-        GraphicNode newNode = new GraphicNode(2*GraphicNode.RADIUS,2*GraphicNode.RADIUS,
+        GraphicNode newNode = new GraphicNode(UNIT_DISTANCE,UNIT_DISTANCE,
                 String.format("%04d",nodeValue));   //all the node will start at the top left corner of the canvas
         newNode.setColor(GraphicNode.RED);      //all the node start in red
         drawOnCanvas(newNode);  //add the node on canvas
@@ -72,7 +71,7 @@ public class Animator {
         }
 
         //dynamically create null children nodes for this new node
-        addNullNode(ID);
+        addNullNode(newNode);
         return ID;
 
     }
@@ -105,7 +104,7 @@ public class Animator {
      * @param onFinish
      * @return
      */
-    private TranslateTransition movementTo(Circle target, double x, double y, EventHandler<ActionEvent> onFinish)
+    private TranslateTransition movementTo(Node target, double x, double y, EventHandler<ActionEvent> onFinish)
     {
         TranslateTransition movementTo = new TranslateTransition(Duration.seconds(1),target);
         movementTo.setToX(x);
@@ -148,15 +147,16 @@ public class Animator {
 
     /**
      * This is the aiding method thar creates an animation for position adjustment, it push
-     * all the parents node that are less than this node move to left
-     * @param parentNodeID
+     * all the parents node that are less than parentNode's left child move to left/right
+     * @param parentNode
+     * @param isGoLeft
      * @return
      */
-    private ParallelTransition leftAdjustment(int parentNodeID) {
-        //make all the parents that are less than move to left
+    private ParallelTransition leftAdjustment(GraphicNode parentNode, boolean isGoLeft) {
+        //make all the parents that are less than move to left/right
 
         ParallelTransition mainAnimation = new ParallelTransition();
-        GraphicNode currentNode = getNode(parentNodeID);
+        GraphicNode currentNode = parentNode;
         LinkedList<GraphicNode> movingQueue = new LinkedList<>();
         LinkedList<GraphicNode> unbindQueue = new LinkedList<>();
 
@@ -177,6 +177,7 @@ public class Animator {
 
         // poll the element from movingQueue and unbindQueue one by one and create the adjustment animation
         // for each of them
+        int factor = isGoLeft? -1:1;
         while (!movingQueue.isEmpty()) {
             GraphicNode movingNode=movingQueue.poll();
             GraphicNode unbindNode=unbindQueue.poll();
@@ -184,7 +185,7 @@ public class Animator {
             unbindNode.unbindParent();
 
             mainAnimation.getChildren().add(
-                    movementBy(movingNode, -UNIT_DISTANCE, 0,
+                    movementBy(movingNode, factor*UNIT_DISTANCE, 0,
                             event -> {
                                 movingNode.bindToParent(movingNode.getParentNode()); //rebind the parent
                                 unbindNode.bindToParent(movingNode); //rebind the leftChild
@@ -196,14 +197,14 @@ public class Animator {
 
     /**
      * This is the aiding method thar creates an animation for position adjustment, it push
-     * all the parents node that are greater than this node to the right
-     * @param parentNodeID
+     * all the parents node that are greater than parentNode's right child  to the right/left
+     * @param parentNode
      * @return
      */
-    private ParallelTransition rightAdjustment(int parentNodeID) {
+    private ParallelTransition rightAdjustment(GraphicNode parentNode,boolean isGoLeft) {
 
         ParallelTransition mainAnimation = new ParallelTransition();
-        GraphicNode currentNode = getNode(parentNodeID);
+        GraphicNode currentNode = parentNode;
         LinkedList<GraphicNode> movingQueue = new LinkedList<>();
         LinkedList<GraphicNode> unbindQueue = new LinkedList<>();
 
@@ -224,6 +225,7 @@ public class Animator {
 
         // poll the element from movingQueue and unbindQueue one by one and create the adjustment animation
         // for each of them
+        int factor = isGoLeft? -1:1;
         while (!movingQueue.isEmpty()) {
             GraphicNode movingNode=movingQueue.poll();
             GraphicNode unbindNode=unbindQueue.poll();
@@ -231,7 +233,7 @@ public class Animator {
             unbindNode.unbindParent();
 
             mainAnimation.getChildren().add(
-                    movementBy(movingNode, UNIT_DISTANCE, 0,
+                    movementBy(movingNode, factor*UNIT_DISTANCE, 0,
                             event -> {
                                 movingNode.bindToParent(movingNode.getParentNode()); //rebind the parent
                                 unbindNode.bindToParent(movingNode); //rebind the leftChild
@@ -246,12 +248,15 @@ public class Animator {
     /**
      * This method is to generate an animation for inserting root node
      * @param newNodeID
+     *          the ID# of the root node that is going to be inserted
      * @return
+     *a {@link SequentialTransition} that represents the root insertion animation
      */
     public SequentialTransition insertRootAnimation(int newNodeID)
     {
         SequentialTransition mainAnimation = new SequentialTransition();
         GraphicNode newNode = getNode(newNodeID);
+        System.out.println("outputmarker adding node");
         newNode.setColor(GraphicNode.BLACK);    //root node's color is always black
         TranslateTransition movementAnimation = movementTo(newNode,mainPane.getWidth()/2, newNode.getY(),
                 null);  //move to the center of the canvas
@@ -262,21 +267,28 @@ public class Animator {
     /**
      * This method is to generate an animation for inserting node left
      * @param newNodeID
+     *              the ID# of the new node that is going to be inserted
      * @param parentNodeID
+     *              the ID# of the parent node of the new node
      * @return
+     * {@link SequentialTransition} that represents the left insertion animation
      */
     public SequentialTransition insertLeftAnimation(int newNodeID, int parentNodeID)
     {
-        SequentialTransition mainAnimation = new SequentialTransition();
-        ParallelTransition adjustmentAnimation = this.leftAdjustment(parentNodeID);
         GraphicNode parentNode=getNode(parentNodeID),
-                    newNode=getNode(newNodeID);
+                newNode=getNode(newNodeID);
+        SequentialTransition mainAnimation = new SequentialTransition();
+        ParallelTransition adjustmentAnimation = this.leftAdjustment(parentNode,true);
+
         adjustmentAnimation.setOnFinished(actionEvent->{this.removeFromCanvas(parentNode.getLeftChild());  //remove the null node
-            parentNode.setLeftChild(newNode);   parentNode.setLeftLinkVisible(true); });  //create the link and make it visible
+            parentNode.setLeftChild(newNode);
+            parentNode.setLeftLinkVisible(true);
+            System.out.println("outputmarker adding node");});  //create the link and make it visible
         double targetX=parentNode.getX()-UNIT_DISTANCE,
                 targetY=parentNode.getY()+UNIT_DISTANCE;
+        System.out.println("outputmarker finding path");
         mainAnimation.getChildren().addAll(
-                                    this.highlightTraversal(parentNodeID), //add the highlight animation
+                                    this.insertionTraversal(parentNodeID), //add the highlight animation
                                     adjustmentAnimation, //add adjustment animation
                                     //add the movement animation
                                     this.movementTo(newNode,targetX,targetY,
@@ -288,22 +300,29 @@ public class Animator {
     /**
      * This method is to generate an animation for inserting node right
      * @param newNodeID
+     *              the ID# of the new node that is going to be inserted
      * @param parentNodeID
+     *              the ID# of the parent node of the new node
      * @return
+     * {@link SequentialTransition} that represents the right insertion animation
      */
     public SequentialTransition insertRightAnimation(int newNodeID, int parentNodeID)
     {
-        SequentialTransition mainAnimation = new SequentialTransition();
-        ParallelTransition adjustmentAnimation = this.rightAdjustment(parentNodeID);
         GraphicNode parentNode=getNode(parentNodeID),
                 newNode=getNode(newNodeID);
+        SequentialTransition mainAnimation = new SequentialTransition();
+        ParallelTransition adjustmentAnimation = this.rightAdjustment(parentNode,false);
+
         adjustmentAnimation.setOnFinished(actionEvent->{this.removeFromCanvas(parentNode.getRightChild());  //remove the null node
-            parentNode.setRightChild(newNode);  parentNode.setRightLinkVisible(true); });  //create the link and make it visible
+            parentNode.setRightChild(newNode);
+            parentNode.setRightLinkVisible(true);
+            System.out.println("outputmarker adding node");});  //create the link and make it visible
 
         double targetX=parentNode.getX()+UNIT_DISTANCE,
                 targetY=parentNode.getY()+UNIT_DISTANCE;
+        System.out.println("outputmarker finding path");
         mainAnimation.getChildren().addAll(
-                this.highlightTraversal(parentNodeID), //add the highlight animation
+                this.insertionTraversal(parentNodeID), //add the highlight animation
                 adjustmentAnimation, //add adjustment animation
                 //add the movement animation
                 this.movementTo(newNode, targetX, targetY,
@@ -314,49 +333,72 @@ public class Animator {
     }
 
 
-
     /**
-     * This is an aiding method for insertion animation
-     * @param parentNodeID
+     * Get a path from parentNode to childNode
+     * @param childNode
+     * @param parentNode
      * @return
      */
-    private SequentialTransition highlightTraversal(int parentNodeID)
+    private Stack<GraphicNode> getTraversal(GraphicNode childNode, GraphicNode parentNode)
     {
-        SequentialTransition mainAnimation = new SequentialTransition();
-        GraphicNode currentNode = getNode(parentNodeID);
-
-        // create a path from root to the parentNode in a stack
         Stack<GraphicNode> traversalStack = new Stack<>();
-        while(currentNode!=null)
+        GraphicNode currentNode = childNode;
+        while(currentNode!=parentNode)
         {
             traversalStack.push(currentNode);
             currentNode=currentNode.getParentNode();
         }
+        return traversalStack;
+    }
 
+    /**
+     * This is an aiding method to create an animation for a highlight circle traverse
+     * through a path of node, the circle will be added on the canvas before the animation
+     * begins
+     * @param circle
+     * @param path
+     * @return
+     */
+    private SequentialTransition highlightTraversal(Circle circle,Stack<GraphicNode> path)
+    {
+        SequentialTransition mainAnimation = new SequentialTransition();
+        GraphicNode nextNode;
+        PauseTransition drawCircle = new PauseTransition(Duration.ONE);
+        drawCircle.setOnFinished(actionEvent->{drawOnCanvas(circle);});
+        mainAnimation.getChildren().add(drawCircle);
+        while(!path.isEmpty()) {
+            nextNode = path.pop();
+            mainAnimation.getChildren().addAll(new PauseTransition(Duration.seconds(.5f)),
+                    //when reach a node, wait for a while
+                    this.movementTo(circle, nextNode.getX(), nextNode.getY(), null)
+                    //move th the next node
+            );
+        }
+            return  mainAnimation;
+    }
+
+    /**
+     * This is an aiding method to generate the highlight circle animation specifically for insertion
+     * @param parentNodeID
+     * @return
+     */
+    private SequentialTransition insertionTraversal(int parentNodeID)
+    {
+        SequentialTransition mainAnimation = new SequentialTransition();
+
+        // get a path from root to the parentNode in a stack
+        Stack<GraphicNode> traversalStack = getTraversal(getNode(parentNodeID),null);
         //get the root node
         GraphicNode nextNode = traversalStack.pop();
         //initialize the highlight circle to the root node
         Circle highlightCircle = createHighlightCircle(nextNode.getX(),nextNode.getY());
-
-        //display the highlight circle by using a short time pause animation
-        PauseTransition drawCircle = new PauseTransition(Duration.ONE);
-        drawCircle.setOnFinished(actionEvent->{drawOnCanvas(highlightCircle);});
-        mainAnimation.getChildren().add(drawCircle);
-
-        //create a sequence of animation to get to the target node
-        while(!traversalStack.isEmpty()){
-            nextNode=traversalStack.pop();
-            mainAnimation.getChildren().addAll( new PauseTransition(Duration.seconds(.5f)),
-                    //when reach a node, wait for a while
-                    this.movementTo(highlightCircle,nextNode.getX(),nextNode.getY(),null)
-                    //move th the next node
-                   );
-        }
+        //get the traversal animation
+        SequentialTransition traversalAnimation = highlightTraversal(highlightCircle,traversalStack);
 
         //remove the highlight circle from the canvas
         PauseTransition removeCircle = new PauseTransition(Duration.seconds(.5f));
         removeCircle.setOnFinished(actionEvent->{removeFromCanvas(highlightCircle);});
-        mainAnimation.getChildren().add(removeCircle);
+        mainAnimation.getChildren().addAll(traversalAnimation,removeCircle);
 
         return mainAnimation;
 
@@ -372,7 +414,7 @@ public class Animator {
     {
         Circle highlightCircle = new Circle(GraphicNode.RADIUS);
         highlightCircle.setFill(new Color(0,0,0,0));
-        highlightCircle.setStroke(GraphicNode.HIGHTLIGHT);
+        highlightCircle.setStroke(GraphicNode.HIGHLIGHT);
         highlightCircle.setStrokeType(StrokeType.OUTSIDE);
         highlightCircle.setStrokeWidth(5);
         highlightCircle.setTranslateX(x);
@@ -383,11 +425,10 @@ public class Animator {
     /**
      * This is an aiding method to add the null node for a specific node, and this
      * is not an animation
-     * @param nodeID
+     * @param thisNode
      */
-    private void addNullNode(int nodeID)
+    private void addNullNode(GraphicNode thisNode)
     {
-        GraphicNode thisNode = getNode(nodeID);
         if(thisNode.getLeftChild()==null)
         {
             GraphicNode nullNode = new GraphicNode(thisNode.getX()-NULL_UNIT_DISTANCE,
@@ -396,9 +437,10 @@ public class Animator {
             nullNode.setColor(GraphicNode.BLACK);
             nullNode.bindToParent(thisNode);
             thisNode.setLeftChild(nullNode);
-            drawOnCanvas(nullNode);
+
             thisNode.setLeftLinkVisible(nullNodeVisible);
             nullNode.setVisible(nullNodeVisible);
+            drawOnCanvas(nullNode);
         }
         if(thisNode.getRightChild()==null)
         {
@@ -408,9 +450,10 @@ public class Animator {
             nullNode.setColor(GraphicNode.BLACK);
             nullNode.bindToParent(thisNode);
             thisNode.setRightChild(nullNode);
-            drawOnCanvas(nullNode);
+
             thisNode.setRightLinkVisible(nullNodeVisible);
             nullNode.setVisible(nullNodeVisible);
+            drawOnCanvas(nullNode);
 
         }
     }
@@ -418,12 +461,14 @@ public class Animator {
     /**
      * This method is to generate an animation for rotating node left
      * @param rotateNodeID
+     *                  the ID# of the top node that is going to rotate left
      * @return
+     * a {@link SequentialTransition} that represents a left rotation animation
      */
     public SequentialTransition rotateLeftAnimation(int rotateNodeID)
     {
         GraphicNode topNode = getNode(rotateNodeID);    // node that is going to move down and currently on the top
-        boolean isLeftChild = topNode.isLeftChild();    //to indicate whether the top node is a left child or right
+        Boolean isLeftChild = topNode.isLeftChild();    //to indicate whether the top node is a left child or right
         GraphicNode parentNode = topNode.getParentNode();   //the parent node of top node
         GraphicNode bottomNode = topNode.getRightChild();   //node that is going to move up and currently on the bottom
         GraphicNode exchangeNode = bottomNode.getLeftChild();   //this is the root of a subtree that is going to change parent during the rotation
@@ -431,11 +476,15 @@ public class Animator {
         SequentialTransition mainAnimation = new SequentialTransition();
         topNode.highlightRightLink();
         PauseTransition highlight = new PauseTransition(Duration.seconds(2));   //highlight the rotation link
-        highlight.setOnFinished(event -> {topNode.unhighlightRightLink();   //after the highlight preparing for rotation
+        System.out.println("outputmarker shows broken invariant");
+
+        //after the highlight preparing for rotation
+        highlight.setOnFinished(event -> {
+        System.out.println("outputmarker rotating");
+        topNode.unhighlightRightLink();
         topNode.unbindParent();
         bottomNode.unbindParent();  //the two moving node first unbind with their parent so that they could move freely
         topNode.setRightChild(exchangeNode);    //the top node get a new right child, which is the exchange node
-
         if(exchangeNode.isNull())
             topNode.setRightLinkVisible(nullNodeVisible);   //exchange node could be null node
 
@@ -465,6 +514,10 @@ public class Animator {
         return mainAnimation;
     }
 
+    /**
+     * This is an aiding method to solve the overlay issue when a node changes its level
+     * @param node
+     */
     private void resetOverlay(GraphicNode node)
     {
         node.toFront();
@@ -478,7 +531,9 @@ public class Animator {
     /**
      * This method is to generate an animation for rotating node right
      * @param rotateNodeID
+     *                  the ID# of the top node that is going to rotate right
      * @return
+     * a {@link SequentialTransition} that represents a right rotation animation
      */
     public SequentialTransition rotateRightAnimation(int rotateNodeID)
     {
@@ -492,10 +547,13 @@ public class Animator {
         SequentialTransition mainAnimation = new SequentialTransition();
         topNode.highlightLeftLink();    //highlight the rotation link
         PauseTransition highlight = new PauseTransition(Duration.seconds(2));
-        highlight.setOnFinished(event -> {topNode.unhighlightLeftLink();    //after the highlight preparing for rotation
+        System.out.println("outputmarker shows broken invariant");
+        //after the highlight preparing for rotation
+        highlight.setOnFinished(event -> {
+            System.out.println("outputmarker rotating");
+            topNode.unhighlightLeftLink();
             topNode.unbindParent();
             bottomNode.unbindParent();  //the two moving node first unbind with their parent so that they could move freely
-
             topNode.setLeftChild(exchangeNode); //the top node get a new left child, which is the exchange node
 
             if(exchangeNode.isNull())
@@ -526,6 +584,8 @@ public class Animator {
     /**
      * This method is used to hide or show the null node of the leaves nodes.
      * @param isVisible
+     *          {@code true} if set the null nodes visible,
+     *          {@code false} if set to invisible
      */
     public void setNullNodeVisible(boolean isVisible)
     {
@@ -564,27 +624,115 @@ public class Animator {
 //    {
 //
 //    }
-//
-//    /**
-//     * This method is to generate an animation for deletion
-//     * @param deleteNodeID
-//     * @return
-//     */
-//    public SequentialTransition deleteAnimation(int deleteNodeID)
-//    {
-//
-//    }
-//
-//    /**
-//     * This method is to generate an animation for swap the data
-//     * @param swapNodeID_1
-//     * @param swapNodeID_2
-//     * @return
-//     */
-//    public SequentialTransition dataSwap(int swapNodeID_1,int swapNodeID_2)
-//    {
-//
-//    }
+
+    /**
+     * This method is to generate an animation for deletion
+     * @param deleteNodeID
+     *                      the ID# of the node that is going to be deleted
+     * @return
+     * a {@link SequentialTransition} that represents the deletion animation of a node
+     */
+    public SequentialTransition deleteAnimation(int deleteNodeID)
+    {
+        GraphicNode deleteNode= getNode(deleteNodeID);
+        hashTable[deleteNodeID]=null;   //delete from the hash table
+        GraphicNode parentNode = deleteNode.getParentNode();
+        Boolean isLeft = deleteNode.isLeftChild();  //check if this node is left or right of its parent
+        ParallelTransition adjustment = new ParallelTransition();   //do an adjustment after the deletion
+        if(parentNode!=null) {      //if this is not a root node deletion
+            if (isLeft) {
+                parentNode.setLeftLinkVisible(false);
+                adjustment = leftAdjustment(parentNode,false);
+            }
+            else {
+                parentNode.setRightLinkVisible(false);
+                adjustment = rightAdjustment(parentNode,true);
+            }
+
+        }
+
+        ParallelTransition deleteAnimation = new ParallelTransition();
+        FadeTransition[] dele = new FadeTransition[3];  //make three fade animation for the node and its two null children
+        dele[0] = new FadeTransition(Duration.seconds(.5f),deleteNode);
+        dele[1] = new FadeTransition(Duration.seconds(1f),deleteNode.getLeftChild());
+        dele[2] = new FadeTransition(Duration.seconds(1f),deleteNode.getRightChild());
+        for(int i =0;i<3;i++)
+        {
+            dele[i].setToValue(0);
+            deleteAnimation.getChildren().add(dele[i]);
+        }
+        System.out.println("outputmarker deleting");
+        deleteAnimation.setOnFinished(event -> {removeFromCanvas(deleteNode.getLeftChild());
+                                                removeFromCanvas(deleteNode.getRightChild());
+                                                removeFromCanvas(deleteNode);
+                                                if(parentNode!=null) {
+                                                    if (isLeft)
+                                                        parentNode.setLeftChild(null);
+                                                    else
+                                                        parentNode.setRightChild(null);
+                                                    addNullNode(parentNode);
+                                                }});
+        SequentialTransition mainAnimation = new SequentialTransition(deleteAnimation,adjustment);
+        return mainAnimation;
+
+    }
+
+    /**
+     * This method is to generate an animation for swap the data
+     * @param topNodeID
+     *                  the ID# of the top node
+     * @param bottomNodeID
+     *                  the ID# of the bottom node
+     * @return
+     * A {@link SequentialTransition} that represents the animation of data swap
+     */
+    public SequentialTransition dataSwap(int topNodeID,int bottomNodeID)
+    {
+            //get all the info
+            GraphicNode topNode = getNode(topNodeID);
+            GraphicNode bottomNode = getNode(bottomNodeID);
+            String valueA = topNode.getValue();
+            String valueB = bottomNode.getValue();
+
+            //create two extra text for animation
+            Text bottomText = new Text(valueB);
+            bottomText.setTranslateX(bottomNode.getTextX());
+            bottomText.setTranslateY(bottomNode.getTextY());
+            Text topText = new Text(valueA);
+            topText.setTranslateX(topNode.getTextX());
+            topText.setTranslateY(topNode.getTextY());
+
+        //get a path from root to to top node
+        Stack<GraphicNode> topNodePath = getTraversal(topNode,null);
+        //get a path from top node to bottom node
+        Stack<GraphicNode> bottomNodePath = getTraversal(bottomNode,topNode);
+
+        GraphicNode rootNode = topNodePath.pop();   //get the root node
+        Circle circleA=createHighlightCircle(rootNode.getX(),rootNode.getY());  //circleA  will appear on root node
+        Circle circleB=createHighlightCircle(topNode.getX(),topNode.getY());    //circleB will appear on top node
+        circleB.setStroke(GraphicNode.HIGHLIGHT_2);
+
+        System.out.println("outputmarker searching");
+        SequentialTransition topTraversal = highlightTraversal(circleA,topNodePath);
+        topTraversal.setOnFinished(event -> {System.out.println("outputmarker find min");});
+        SequentialTransition bottomTraversal = highlightTraversal(circleB,bottomNodePath);
+        bottomTraversal.setOnFinished(event -> {drawOnCanvas(topText);drawOnCanvas(bottomText);System.out.println("outputmarker swapping");});
+
+            ParallelTransition textMovement = new ParallelTransition();
+            textMovement.getChildren().add(movementTo(topText,bottomNode.getTextX(),bottomNode.getTextY(),null));
+            textMovement.getChildren().add(movementTo(bottomText,topNode.getTextX(),topNode.getTextY(),null));
+            textMovement.setOnFinished(event -> {
+                removeFromCanvas(topText);
+                removeFromCanvas(bottomText);
+                removeFromCanvas(circleA);
+                removeFromCanvas(circleB);
+                topNode.setValue(valueB);
+                bottomNode.setValue(valueA);});
+
+
+        SequentialTransition mainAnimation = new SequentialTransition(topTraversal,bottomTraversal,textMovement);
+            return mainAnimation;
+    }
 
     private GraphicNode getNode(int nodeID)
     {
