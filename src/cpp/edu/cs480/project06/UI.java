@@ -1,9 +1,20 @@
+/**
+ * CS 241: Data Structures and Algorithms II
+ * Professor: Edwin Rodr�guez
+ *
+ * Programming Assignment #3
+ *
+ * This assignment details the implementation of a 
+ * Red Black Binary search tree in java. A Red Black tree
+ * is a form of self balancing binary search tree that supports
+ * a worst case time complexity of O(logn).
+ *
+ * @author Felix Zhang 
+ *   
+ */
 package cpp.edu.cs480.project06;
 
-//must rename to controller class
-
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * This class represents the User Interface that the user sees when using the
@@ -19,8 +30,7 @@ public class UI {
 	 * This method starts the Red Black tree program.
 	 */
 	public void start() {
-		System.out.println("Welcome to Red/Black cpp.edu.cs480.project06.Tree simulator!");
-
+		System.out.println("Welcome to Red/Black Tree simulator!");
 		while (true) {
 			try {
 				mainMenu();
@@ -29,6 +39,21 @@ public class UI {
 				input.nextLine();
 			} catch (NullPointerException e) {
 				System.out.println("Invalid key, Please try again.\n\n");
+			}
+			System.out.println(tree.info.size());
+			
+			Iterator<RedBlackTree<Integer, String>.Instruction> iter = tree.info.iterator();
+			/*
+             output format
+             <add> <ID> <boolean (left = true && right = false)> <parentID>
+             <remove> <ID>
+             <swap> <IDRoot> <IDTarget>
+             <leftRotate> <ID>
+             <rightRotate> <ID>
+             <recolor> <ID> <BLACK | RED>
+             */
+			while (iter.hasNext()) {
+				System.out.println(iter.next().getInstruction());
 			}
 		}
 
@@ -43,7 +68,7 @@ public class UI {
 		int userInput = 0;
 
 		System.out.println("Select an option to begin, Enter nothing to quit");
-		System.out.println("1. Add to Red/Black cpp.edu.cs480.project06.Tree.\n2. Remove from Red/Black cpp.edu.cs480.project06.Tree.\n3. Look up a value");
+		System.out.println("1. Add to Red/Black Tree.\n2. Remove from Red/Black Tree.\n3. Look up a value");
 		userInput = input.nextInt();
 
 		switch (userInput) {
@@ -104,7 +129,7 @@ public class UI {
 		
 		tree.remove(removeKey);
 		displayTree();
-		System.out.println("If nothing is displayed, cpp.edu.cs480.project06.Tree is empty!");
+		System.out.println("If nothing is displayed, Tree is empty!");
 		System.out.println();
 	}
 
