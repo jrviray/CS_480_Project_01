@@ -73,23 +73,29 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 		} else if (findUncle(target).color == BLACK) {
 			if (target.parent.isLeftChild() && target.isLeftChild()) {
 				//info.add(new Instruction("leftRotate " + target.getData() + " "));
-                                
+                 info.add(new Instruction("leftRotate", target.getData(), target.isLeftChild(), target.getColor(), null, null, null,
+						 "If parent and node are both left children, fix with a left rotate"));
 				addLeftLeftCase(target);
 			} else if (target.parent.isLeftChild() && !target.isLeftChild()) {
 				//info.add(new Instruction("leftRotate " + target.getData()));
-                                info.add(new Instruction("rotate", target.getData(), true, true, null, null, null, null));
+                                info.add(new Instruction("leftRotate", target.getData(), target.isLeftChild(), target.getColor(), null, null, null,
+										"If parent is left and node is right, fix with a left rotate"));
 				//info.add(new Instruction("rightRotate " + target.getData()));
-                                info.add(new Instruction("rotate", target.getData(), false, true, null, null, null, null));
+                                info.add(new Instruction("rightRotate", target.getData(), target.isLeftChild(), target.getColor(), null, null, null,
+										"If parent and node are both left, fix with a right rotate"));
 				addLeftRightCase(target);
 			} else if (!target.parent.isLeftChild() && !target.isLeftChild()) {
 				//info.add(new Instruction("leftRotate " + target.getData()));
-                                info.add(new Instruction("rotate", target.getData(), true, true, null, null, null, null));
+                                info.add(new Instruction("rotate", target.getData(), target.isLeftChild(), target.getColor(), null, null, null,
+										"If parent and node are right, fix with a left rotate"));
 				addRightRightCase(target);
 			} else if (!target.parent.isLeftChild() && target.isLeftChild()) {
 				//info.add(new Instruction("rightRotate " + target.getData()));
-                                info.add(new Instruction("rotate", target.getData(), false, true, null, null, null, null));
+                                info.add(new Instruction("rotate", target.getData(), target.isLeftChild(), target.getColor(), null, null, null,
+										"If parent is right and node is left, fix with a right rotate"));
 				//info.add(new Instruction("leftRotate " + target.getData()));
-                                info.add(new Instruction("rotate", target.getData(), true, true, null, null, null, null));
+                                info.add(new Instruction("rotate", target.getData(), target.isLeftChild(), target.getColor(), null, null, null,
+										"If parent and node are both right, fix with a left rotate"));
 				rightLeftCase(target);
 			}
 		}
@@ -108,17 +114,17 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 			Node uncle = findUncle(target);
 			target.parent.color = BLACK;
 			//info.add(new Instruction("recolor " + target.parent.getData() + " BLACK"));
-                        info.add(new Instruction("recolor", uncle.getData(), false, false, null, null, null, null));
+                        info.add(new Instruction("recolor", uncle.getData(), uncle.isLeftChild(), uncle.getColor(), null, null, null, null));
 			uncle.color = BLACK;
 			//info.add(new Instruction("recolor " + uncle.getData() + " BLACK"));
-                        info.add(new Instruction("recolor", uncle.getData(), false, false, null, null, null, null));
+                        info.add(new Instruction("recolor", uncle.getData(), uncle.isLeftChild(), uncle.getColor(), null, null, null,null));
 			uncle.parent.color = RED;
 			//info.add(new Instruction("recolor " + uncle.parent.getData() + " RED"));
-                        info.add(new Instruction("recolor", uncle.getData(), false, true, null, null, null, null));
+                        info.add(new Instruction("recolor", uncle.getData(), uncle.isLeftChild(), uncle.getColor(), null, null, null, null));
 			root.color = BLACK;
 			//info.add(new Instruction("recolor " + root.getData() + " BLACK"));
-                        info.add(new Instruction("recolor", uncle.getData(), false, false, null, null, null, null));
-			
+                        info.add(new Instruction("recolor", uncle.getData(), uncle.isLeftChild(), uncle.getColor(), null, null, null,
+								"Uncle is red and parent is black, recolor"));
 			recolor(target.parent.parent);
 		} else if (target.color == RED && target.parent.color == RED) {
 			addFixTree(target);
@@ -340,35 +346,46 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 			if (target.parent.rightChild.color == RED) {
 				target.color = BLACK;
 				//info.add(new Instruction("recolor " + target.getData() + " BLACK"));
-                                info.add(new Instruction("recolor", target.getData(), false, false, null, null, null, null));
+                                info.add(new Instruction("recolor", target.getData(), target.isLeftChild(),
+										target.getColor(), null, null, null,
+										"Target is red, is a left child, and its sibling is black, recolor"));
 				target.parent.color = RED;
 				//info.add(new Instruction("recolor " + target.parent.getData() + " RED"));
-                                info.add(new Instruction("recolor", target.parent.getData(), false, true, null, null, null, null));
+                                info.add(new Instruction("recolor", target.parent.getData(),
+										target.parent.isLeftChild(), target.parent.getColor(), null, null, null, null));
 				target.parent.rightChild.color = BLACK;
 				//info.add(new Instruction("recolor " + target.parent.rightChild.getData() + " BLACK"));
-                                info.add(new Instruction("recolor", target.parent.rightChild.getData(), false, false, null, null, null, null));
+                                info.add(new Instruction("recolor", target.parent.rightChild.getData(),
+										target.parent.rightChild.isLeftChild(), target.parent.rightChild.getColor(), null, null, null, null));
 			}
 		} else if (target.color == RED && !target.isLeftChild()) {
 			if (target.parent.leftChild.color == RED) {
 				target.color = BLACK;
 				//info.add(new Instruction("recolor " + target.getData() + " BLACK"));
-                                info.add(new Instruction("recolor", target.getData(), false, false, null, null, null, null));
+                                info.add(new Instruction("recolor", target.getData(), target.isLeftChild(),
+										target.getColor(), null, null, null,
+										"Target is red, is a right child, and its sibling is red, recolor"));
 				target.parent.color = RED;
 				//info.add(new Instruction("recolor " + target.parent.getData() + " RED"));
-                                info.add(new Instruction("recolor", target.parent.getData(), false, true, null, null, null, null));
+                                info.add(new Instruction("recolor", target.parent.getData(), target.parent.isLeftChild(),
+										target.parent.getColor(), null, null, null, null));
 				target.parent.leftChild.color = BLACK;
 				//info.add(new Instruction("recolor " + target.parent.leftChild.getData() + " BLACK"));
-                                info.add(new Instruction("recolor", target.parent.leftChild.getData(), false, false, null, null, null, null));
+                                info.add(new Instruction("recolor", target.parent.leftChild.getData(),
+										target.parent.leftChild.isLeftChild(),target.parent.leftChild.getColor(), null, null, null, null));
 			} else {
 				target.color  = RED;
 				//info.add(new Instruction("recolor " + target.getData() + " RED"));
-                                info.add(new Instruction("recolor", target.getData(), false, true, null, null, null, null));
+                                info.add(new Instruction("recolor", target.getData(), target.isLeftChild(), target.getColor(), null, null, null,
+										"Target and parent are red, recolor"));
 			}
 		} else if (target.color == BLACK && target.parent == root) {
 	
 			target.color = RED;
 			//info.add(new Instruction("recolor " + target.getData() + " RED"));
-                        info.add(new Instruction("recolor", target.getData(), false, true, null, null, null, null));
+                        info.add(new Instruction("recolor", target.getData(), target.isLeftChild(), target.getColor(),
+								null, null, null,
+								"Target is black and parent is root, recolor"));
 		}
 	}
 	
@@ -381,31 +398,34 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 		if (target.color == RED) {
 			if (target.isLeftChild()) {
 				//info.add(new Instruction("remove " + target.getData()));
-                                info.add(new Instruction("remove", target.getData(), false, false, null, null, null, null));
+                                info.add(new Instruction("remove", target.getData(), target.isLeftChild(), target.getColor(), null, null, null,
+										"Node is red and is left child, remove node"));
 				target.parent.leftChild = new Node();
 			} else {
 				target.parent.rightChild = new Node();
 				//info.add(new Instruction("remove " + target.getData()));
-                                info.add(new Instruction("remove", target.getData(), false, false, null, null, null, null));
+                                info.add(new Instruction("remove", target.getData(), target.isLeftChild(), target.getColor(), null, null, null,
+										"Node is red and is right child, remove node"));
 			}
 		} else {
 			if (target.isLeftChild()) {
 				target.parent.leftChild = new Node();
 				target = target.parent;
 				//info.add(new Instruction("remove " + target.getData()));
-                                info.add(new Instruction("remove", target.getData(), false, false, null, null, null, null));
+                                info.add(new Instruction("remove", target.getData(), target.isLeftChild(), target.getColor(), null, null, null,
+										"Node is black and is left child, remove node and rotate"));
 				leftRotate(target);
 				//info.add(new Instruction("leftRotate " + target.getData()));
-                                info.add(new Instruction("rotate", target.getData(), true, false, null, null, null, null));
+                                info.add(new Instruction("rotate", target.getData(), target.isLeftChild(), target.getColor(), null, null, null, null));
 				deleteRecolor(target);
 			} else {
 				target.parent.rightChild = new Node();
 				target = target.parent;
 				//info.add(new Instruction("remove " + target.getData()));
-                                info.add(new Instruction("remove", target.getData(), false, false, null, null, null, null));
-				
+                                info.add(new Instruction("remove", target.getData(), target.isLeftChild(), target.getColor(), null, null, null,
+										"Node is black and is right child, remove node and rotate"));
 				//info.add(new Instruction("rightRotate " + target.getData()));
-                                info.add(new Instruction("rotate", target.getData(), false, false, null, null, null, null));
+                                info.add(new Instruction("rotate", target.getData(), target.isLeftChild(), target.getColor(), null, null, null, null));
 				rightRotate(target);
 				deleteRecolor(target);
 			}
@@ -430,27 +450,29 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 		if (target == root) {
 			if (root.rightChild == replaceNode) {
 				//info.add(new Instruction("swap " + root.getData() + " " + replaceNode.getData()));
-                                info.add(new Instruction("swap", null, false, false, null, root.getData(), replaceNode.getData(), null));
-				//help me
+                                info.add(new Instruction("swap", null, replaceNode.isLeftChild(), replaceNode.getColor(), null, root.getData(), replaceNode.getData(), null));
 				replaceNode.parent = replaceNode;
 				replaceNode.leftChild = root.leftChild;
 				replaceNode.rightChild = replaceNode;
 				root.leftChild.parent = replaceNode;
 				//info.add(new Instruction("remove " + root.getData()));
-                                info.add(new Instruction("remove", root.getData(), false, false, null, null, null, null));
-				
+                                info.add(new Instruction("remove", root.getData(), root.isLeftChild(), root.getColor(), null, null, null,
+										"Find in-order successor, replace and remove"));
 				replaceNode.rightChild = new Node();
 				root = replaceNode;
 				rightRotate(root);
 				//info.add(new Instruction("rightRotate " + root.getData()));
-                                info.add(new Instruction("rotate", root.getData(), false, false, null, null, null, null));
+                                info.add(new Instruction("rotate", root.getData(), root.isLeftChild(), root.getColor(), null, null, null, null));
 				deleteRecolor(root.rightChild);
 				root.color = BLACK;
 				//info.add(new Instruction("recolor " + root.getData() + " BLACK"));
-                                info.add(new Instruction("recolor", root.getData(), false, false, null, null, null, null));
+                                info.add(new Instruction("recolor", root.getData(), root.isLeftChild(), root.getColor(), null, null, null, null));
 				root.parent = null;
 				return;
 			} else {
+				info.add(new Instruction("swap",null,false,false,null,root.getData(),replaceNode.getData(),
+						"Find in-order successor, swap,remove, and recolor"));
+				info.add(new Instruction("remove", replaceNode.getData(), false, false, null, null, null, null));
 				replaceNode.parent.leftChild = replaceNode.rightChild;
 				root = replaceNode;
 				replaceNode.leftChild = target.leftChild;
@@ -480,7 +502,8 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 
 		if (target.rightChild.equals(replaceNode)) {
 			//info.add(new Instruction("swap " + replaceNode.getData() + " " + target.getData()));
-                        info.add(new Instruction("swap", null, false, false, null, replaceNode.getData(), target.getData(), null));
+                        info.add(new Instruction("swap", null, false, false, null, replaceNode.getData(), target.getData(),
+								"Find in-order successor, swap and remove"));
 			//info.add(new Instruction("remove " + target.getData()));
                         info.add(new Instruction("remove", target.getData(), false, false, null, null, null, null));
 			replaceNode.leftChild = target.leftChild;
@@ -490,7 +513,8 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 			root.parent = null;
 		} else {
 			//info.add(new Instruction("swap " + replaceNode.getData() + " " + target.getData()));
-                        info.add(new Instruction("swap", null, false, false, null, replaceNode.getData(), target.getData(), null));
+                        info.add(new Instruction("swap", null, false, false, null, replaceNode.getData(), target.getData(),
+								"Find in-order successor, swap and remove"));
 			//info.add(new Instruction("remove " + target.getData()));
                         info.add(new Instruction("remove", target.getData(), false, false, null, null, null, null));
 
@@ -511,14 +535,16 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 		if (target.leftChild.key != null && target.rightChild.key == null) {
 			if (target.isLeftChild()) {
 				//info.add(new Instruction("remove " + target.getData()));
-                                info.add(new Instruction("remove", target.getData(), false, false, null, null, null, null));
+                                info.add(new Instruction("remove", target.getData(), false, false, null, null, null,
+										"Remove node"));
 				target.parent.leftChild = target.leftChild;
 				target.leftChild.color = BLACK;
 				//info.add(new Instruction("recolor " + target.leftChild + " BLACK"));
                                 info.add(new Instruction("recolor", target.leftChild.getData(), false, false, null, null, null, null));
 			} else {
 				//info.add(new Instruction("remove " + target.getData()));
-                                info.add(new Instruction("remove", target.getData(), false, false, null, null, null, null));
+                                info.add(new Instruction("remove", target.getData(), false, false, null, null, null,
+										"Remove node"));
 				target.parent.rightChild = target.leftChild;
 				target.leftChild.color = BLACK;
 				//info.add(new Instruction("recolor " + target.leftChild + " BLACK"));
@@ -527,14 +553,16 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 		} else if (target.rightChild.key != null && target.leftChild.key == null) {
 			if (target.isLeftChild()) {
 				//info.add(new Instruction("remove " + target.getData()));
-                                info.add(new Instruction("remove", target.getData(), false, false, null, null, null, null));
+                                info.add(new Instruction("remove", target.getData(), false, false, null, null, null,
+										"Remove node"));
 				target.parent.leftChild = target.rightChild;
 				target.rightChild.color = BLACK;
 				//info.add(new Instruction("recolor " + target.rightChild + " BLACK"));
                                 info.add(new Instruction("recolor", target.rightChild.getData(), false, false, null, null, null, null));
 			} else {
 				//info.add(new Instruction("remove " + target.getData()));
-                                info.add(new Instruction("remove", target.getData(), false, false, null, null, null, null));
+                                info.add(new Instruction("remove", target.getData(), false, false, null, null, null,
+										"Remove node"));
 				target.parent.rightChild = target.rightChild;
 				target.rightChild.parent = target.parent;
 				target.rightChild.color = BLACK;
@@ -803,6 +831,14 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 				color = "B";
 			}
 			return color;
+		}
+
+		public boolean getColor(){
+			if (this.color == RED){
+				return true;
+			}
+			else
+				return false;
 		}
 		
 
