@@ -69,6 +69,11 @@ public class GraphicNode extends Group {
     private Text keyText;
 
     /**
+     * Indicate whether this is a null node
+     */
+    private boolean isNull;
+
+    /**
      * This represents the parent of this node currently on the graphic, and
      * it does not necessarily always coincide with the actually parent node
      * on the RBTree.
@@ -89,7 +94,7 @@ public class GraphicNode extends Group {
     {
         //initialize the circle and keyText
         circle=new Circle(RADIUS);
-
+        isNull=false;
         circle.setTranslateX(x);
         circle.setTranslateY(y);
         //format the key into four digit with leading zero
@@ -105,12 +110,12 @@ public class GraphicNode extends Group {
         rightLink.startXProperty().bind(getXProperty());
         rightLink.startYProperty().bind(getYProperty());
         unhighlightRightLink();
-        rightLink.setVisible(false);
+        setRightLinkVisible(false);
         leftLink = new Line();
         leftLink.startXProperty().bind(getXProperty());
         leftLink.startYProperty().bind(getYProperty());
         unhighlightLeftLink();
-        leftLink.setVisible(false);
+        setLeftLinkVisible(false);
         //the starting point of two links will always bind to this node
         //links are not visible before it connect to its children
 
@@ -207,7 +212,6 @@ public class GraphicNode extends Group {
 
     /**
      * This method will bind the link of this {@link GraphicNode} with {@link #leftChild}
-     * Also, this method will make the left link visible
      * Notice: this method will not bind  the relative position of between them
      */
     public void setLeftChild(GraphicNode leftChild)
@@ -215,12 +219,10 @@ public class GraphicNode extends Group {
         this.leftChild=leftChild;
         leftLink.endXProperty().bind(getLeftChild().getXProperty());
         leftLink.endYProperty().bind(getLeftChild().getYProperty());
-        leftLink.setVisible(true);
     }
 
     /**
      * This method will bind the link of this {@link GraphicNode} with {@link #rightChild}
-     * Also, this method will make the left link visible
      * Notice: this method will not bind  the relative position of between them
      */
     public void setRightChild(GraphicNode rightChild)
@@ -228,7 +230,6 @@ public class GraphicNode extends Group {
         this.rightChild=rightChild;
         rightLink.endXProperty().bind(getRightChild().getXProperty());
         rightLink.endYProperty().bind(getRightChild().getYProperty());
-        rightLink.setVisible(true);
     }
 
     /**
@@ -317,6 +318,26 @@ public class GraphicNode extends Group {
     {
         rightLink.setStroke(Color.BLACK);
         rightLink.setStrokeWidth(1f);
+    }
+
+    public boolean isNull()
+    {
+        return isNull;
+    }
+
+    public void setNull()
+    {
+        isNull=true;
+    }
+
+    public void setLeftLinkVisible(boolean isVisible)
+    {
+        leftLink.setVisible(isVisible);
+    }
+
+    public void setRightLinkVisible(boolean isVisible)
+    {
+        rightLink.setVisible(isVisible);
     }
 
 }

@@ -28,6 +28,8 @@ public class Animator {
 
     private final double NULL_UNIT_DISTANCE = GraphicNode.RADIUS * 1.5;
 
+    private boolean nullNodeVisible;
+
 
     /**
      * default constructor
@@ -36,7 +38,8 @@ public class Animator {
     public Animator(Pane mainPane)
     {
         this.mainPane=mainPane;
-        hashTable=new GraphicNode[50];
+        hashTable=new GraphicNode[2];
+        nullNodeVisible=true;
     }
 
 
@@ -50,10 +53,11 @@ public class Animator {
     public int generateNode(int nodeValue)
     {
         GraphicNode newNode = new GraphicNode(2*GraphicNode.RADIUS,2*GraphicNode.RADIUS,
-                String.format("%04d",nodeValue));
-        newNode.setColor(GraphicNode.RED);
-        drawOnCanvas(newNode);
+                String.format("%04d",nodeValue));   //all the node will start at the top left corner of the canvas
+        newNode.setColor(GraphicNode.RED);      //all the node start in red
+        drawOnCanvas(newNode);  //add the node on canvas
         int ID;
+        //find an empty spot on hash table
         for(ID=0;ID<hashTable.length;ID++)
         {
             if(getNode(ID)==null)
@@ -61,10 +65,14 @@ public class Animator {
         }
 
         hashTable[ID]=newNode;
-        if(ID==hashTable.length)
+        //if the hash table is full, expand the table
+        if(ID==hashTable.length-1)
         {
             hashTable= Arrays.copyOf(hashTable,hashTable.length*2);
         }
+
+        //dynamically create null children nodes for this new node
+        addNullNode(ID);
         return ID;
 
     }
@@ -152,6 +160,9 @@ public class Animator {
         LinkedList<GraphicNode> movingQueue = new LinkedList<>();
         LinkedList<GraphicNode> unbindQueue = new LinkedList<>();
 
+        //traversal up and find out all the parent nodes that are less than and add them to movingQueue
+        //at the same time, keep track of their child which will change the relative position after the moving
+        //so that they could be unbind before and rebind after the adjustment
         while(true)
         {
             Boolean isCurrentNodeLeft = currentNode.isLeftChild();
@@ -164,6 +175,8 @@ public class Animator {
             currentNode=currentNode.getParentNode();
         }
 
+        // poll the element from movingQueue and unbindQueue one by one and create the adjustment animation
+        // for each of them
         while (!movingQueue.isEmpty()) {
             GraphicNode movingNode=movingQueue.poll();
             GraphicNode unbindNode=unbindQueue.poll();
@@ -194,6 +207,9 @@ public class Animator {
         LinkedList<GraphicNode> movingQueue = new LinkedList<>();
         LinkedList<GraphicNode> unbindQueue = new LinkedList<>();
 
+        //traversal up and find out all the parent nodes that are greater than and add them to movingQueue
+        //at the same time, keep track of their child which will change the relative position after the moving
+        //so that they could be unbind before and rebind after the adjustment
         while(true)
         {
             Boolean isCurrentNodeLeft = currentNode.isLeftChild();
@@ -206,6 +222,8 @@ public class Animator {
             currentNode=currentNode.getParentNode();
         }
 
+        // poll the element from movingQueue and unbindQueue one by one and create the adjustment animation
+        // for each of them
         while (!movingQueue.isEmpty()) {
             GraphicNode movingNode=movingQueue.poll();
             GraphicNode unbindNode=unbindQueue.poll();
@@ -234,9 +252,9 @@ public class Animator {
     {
         SequentialTransition mainAnimation = new SequentialTransition();
         GraphicNode newNode = getNode(newNodeID);
-        newNode.setColor(GraphicNode.BLACK);
+        newNode.setColor(GraphicNode.BLACK);    //root node's color is always black
         TranslateTransition movementAnimation = movementTo(newNode,mainPane.getWidth()/2, newNode.getY(),
-                event->{addNullNode(newNodeID,mainPane.getWidth()/2,newNode.getY());});
+                null);  //move to the center of the canvas
         mainAnimation.getChildren().add(movementAnimation);
         return mainAnimation;
     }
@@ -254,7 +272,7 @@ public class Animator {
         GraphicNode parentNode=getNode(parentNodeID),
                     newNode=getNode(newNodeID);
         adjustmentAnimation.setOnFinished(actionEvent->{this.removeFromCanvas(parentNode.getLeftChild());  //remove the null node
-            parentNode.setLeftChild(newNode); });  //create the link
+            parentNode.setLeftChild(newNode);   parentNode.setLeftLinkVisible(true); });  //create the link and make it visible
         double targetX=parentNode.getX()-UNIT_DISTANCE,
                 targetY=parentNode.getY()+UNIT_DISTANCE;
         mainAnimation.getChildren().addAll(
@@ -262,8 +280,7 @@ public class Animator {
                                     adjustmentAnimation, //add adjustment animation
                                     //add the movement animation
                                     this.movementTo(newNode,targetX,targetY,
-                        actionEvent->{newNode.bindToParent(parentNode);  //when finished, bind with parent
-                                    this.addNullNode(newNodeID,targetX,targetY);}   //add null children
+                        actionEvent->{newNode.bindToParent(parentNode);}  //when finished, bind with parent
                 ));
         return mainAnimation;
     }
@@ -281,20 +298,17 @@ public class Animator {
         GraphicNode parentNode=getNode(parentNodeID),
                 newNode=getNode(newNodeID);
         adjustmentAnimation.setOnFinished(actionEvent->{this.removeFromCanvas(parentNode.getRightChild());  //remove the null node
-                                                parentNode.setRightChild(newNode); });  //create the link
+            parentNode.setRightChild(newNode);  parentNode.setRightLinkVisible(true); });  //create the link and make it visible
 
         double targetX=parentNode.getX()+UNIT_DISTANCE,
                 targetY=parentNode.getY()+UNIT_DISTANCE;
-        PauseTransition addNullNode = new PauseTransition(Duration.ONE);
-        addNullNode.setOnFinished(event -> addNullNode(newNodeID,targetX,targetY));
         mainAnimation.getChildren().addAll(
                 this.highlightTraversal(parentNodeID), //add the highlight animation
                 adjustmentAnimation, //add adjustment animation
                 //add the movement animation
                 this.movementTo(newNode, targetX, targetY,
-                        actionEvent->{newNode.bindToParent(parentNode);}), //when finished, bind with parent
-                addNullNode
-                );
+                        actionEvent->{newNode.bindToParent(parentNode);} //when finished, bind with parent
+                ));
         return mainAnimation;
 
     }
@@ -324,7 +338,7 @@ public class Animator {
         //initialize the highlight circle to the root node
         Circle highlightCircle = createHighlightCircle(nextNode.getX(),nextNode.getY());
 
-        //display the highlight circle
+        //display the highlight circle by using a short time pause animation
         PauseTransition drawCircle = new PauseTransition(Duration.ONE);
         drawCircle.setOnFinished(actionEvent->{drawOnCanvas(highlightCircle);});
         mainAnimation.getChildren().add(drawCircle);
@@ -370,27 +384,33 @@ public class Animator {
      * This is an aiding method to add the null node for a specific node, and this
      * is not an animation
      * @param nodeID
-     * @param startX
-     * @param startY
      */
-    private void addNullNode(int nodeID,double startX,double startY)
+    private void addNullNode(int nodeID)
     {
         GraphicNode thisNode = getNode(nodeID);
         if(thisNode.getLeftChild()==null)
         {
-            GraphicNode nullNode = new GraphicNode(startX-NULL_UNIT_DISTANCE,startY+UNIT_DISTANCE,"NULL");
+            GraphicNode nullNode = new GraphicNode(thisNode.getX()-NULL_UNIT_DISTANCE,
+                    thisNode.getY()+UNIT_DISTANCE,"NULL");
+            nullNode.setNull();
             nullNode.setColor(GraphicNode.BLACK);
             nullNode.bindToParent(thisNode);
             thisNode.setLeftChild(nullNode);
             drawOnCanvas(nullNode);
+            thisNode.setLeftLinkVisible(nullNodeVisible);
+            nullNode.setVisible(nullNodeVisible);
         }
         if(thisNode.getRightChild()==null)
         {
-            GraphicNode nullNode = new GraphicNode(startX+NULL_UNIT_DISTANCE,startY+UNIT_DISTANCE,"NULL");
+            GraphicNode nullNode = new GraphicNode(thisNode.getX()+NULL_UNIT_DISTANCE,
+                    thisNode.getY()+UNIT_DISTANCE,"NULL");
+            nullNode.setNull();
             nullNode.setColor(GraphicNode.BLACK);
             nullNode.bindToParent(thisNode);
             thisNode.setRightChild(nullNode);
             drawOnCanvas(nullNode);
+            thisNode.setRightLinkVisible(nullNodeVisible);
+            nullNode.setVisible(nullNodeVisible);
 
         }
     }
@@ -402,35 +422,45 @@ public class Animator {
      */
     public SequentialTransition rotateLeftAnimation(int rotateNodeID)
     {
-        GraphicNode topNode = getNode(rotateNodeID);
-        boolean isLeftChild = topNode.isLeftChild();
-        GraphicNode parentNode = topNode.getParentNode();
-        GraphicNode bottomNode = topNode.getRightChild();
-        GraphicNode exchangeNode = bottomNode.getLeftChild();
+        GraphicNode topNode = getNode(rotateNodeID);    // node that is going to move down and currently on the top
+        boolean isLeftChild = topNode.isLeftChild();    //to indicate whether the top node is a left child or right
+        GraphicNode parentNode = topNode.getParentNode();   //the parent node of top node
+        GraphicNode bottomNode = topNode.getRightChild();   //node that is going to move up and currently on the bottom
+        GraphicNode exchangeNode = bottomNode.getLeftChild();   //this is the root of a subtree that is going to change parent during the rotation
 
         SequentialTransition mainAnimation = new SequentialTransition();
         topNode.highlightRightLink();
-        PauseTransition highlight = new PauseTransition(Duration.seconds(2));
-        highlight.setOnFinished(event -> {topNode.unhighlightRightLink();
+        PauseTransition highlight = new PauseTransition(Duration.seconds(2));   //highlight the rotation link
+        highlight.setOnFinished(event -> {topNode.unhighlightRightLink();   //after the highlight preparing for rotation
         topNode.unbindParent();
-        bottomNode.unbindParent();
-        topNode.setRightChild(exchangeNode);
-        bottomNode.setLeftChild(topNode);
-        exchangeNode.unbindParent();
-            if(parentNode!=null)
+        bottomNode.unbindParent();  //the two moving node first unbind with their parent so that they could move freely
+        topNode.setRightChild(exchangeNode);    //the top node get a new right child, which is the exchange node
+
+        if(exchangeNode.isNull())
+            topNode.setRightLinkVisible(nullNodeVisible);   //exchange node could be null node
+
+
+        bottomNode.setLeftChild(topNode);   //bottom node get new left child, which is the top node
+        bottomNode.setLeftLinkVisible(true);    //bottom node's left child will not be null
+
+        exchangeNode.unbindParent();    //exchange shouldn't move along its new parent
+
+            if(parentNode!=null)    //if top node is not root node, the parentNode change its child from top node to bottom node
             {
                 if(isLeftChild)
                     parentNode.setLeftChild(bottomNode);
                 else
                     parentNode.setRightChild(bottomNode);
             }
-            resetOverlay(topNode);
+            resetOverlay(topNode);  //since top node and bottom node change the level, their graphic overlay should reset
         });
         ParallelTransition rotate = new ParallelTransition();
 
-        rotate.getChildren().addAll(movementBy(bottomNode,0,-UNIT_DISTANCE,event -> {bottomNode.bindToParent(parentNode);})
-                                    ,movementBy(topNode,0,UNIT_DISTANCE,event -> {topNode.bindToParent(bottomNode);
-                                                                                        exchangeNode.bindToParent(topNode);}));
+        rotate.getChildren().addAll(movementBy(bottomNode,0,-UNIT_DISTANCE,
+                event -> {bottomNode.bindToParent(parentNode);})
+                                    ,movementBy(topNode,0,UNIT_DISTANCE,
+                        event -> {topNode.bindToParent(bottomNode);
+                            exchangeNode.bindToParent(topNode);}));
         mainAnimation.getChildren().addAll(highlight,rotate);
         return mainAnimation;
     }
@@ -453,29 +483,36 @@ public class Animator {
     public SequentialTransition rotateRightAnimation(int rotateNodeID)
     {
 
-        GraphicNode topNode = getNode(rotateNodeID);
-        Boolean isLeftChild = topNode.isLeftChild();
-        GraphicNode parentNode = topNode.getParentNode();
-        GraphicNode bottomNode = topNode.getLeftChild();
-        GraphicNode exchangeNode = bottomNode.getRightChild();
+        GraphicNode topNode = getNode(rotateNodeID);    // node that is going to move down and currently on the top
+        Boolean isLeftChild = topNode.isLeftChild();    //to indicate whether the top node is a left child or right
+        GraphicNode parentNode = topNode.getParentNode();   //the parent node of top node
+        GraphicNode bottomNode = topNode.getLeftChild();    //node that is going to move up and currently on the bottom
+        GraphicNode exchangeNode = bottomNode.getRightChild();  //this is the root of a subtree that is going to change parent during the rotation
 
         SequentialTransition mainAnimation = new SequentialTransition();
-        topNode.highlightLeftLink();
+        topNode.highlightLeftLink();    //highlight the rotation link
         PauseTransition highlight = new PauseTransition(Duration.seconds(2));
-        highlight.setOnFinished(event -> {topNode.unhighlightLeftLink();
+        highlight.setOnFinished(event -> {topNode.unhighlightLeftLink();    //after the highlight preparing for rotation
             topNode.unbindParent();
-            bottomNode.unbindParent();
-            topNode.setLeftChild(exchangeNode);
-            bottomNode.setRightChild(topNode);
+            bottomNode.unbindParent();  //the two moving node first unbind with their parent so that they could move freely
+
+            topNode.setLeftChild(exchangeNode); //the top node get a new left child, which is the exchange node
+
+            if(exchangeNode.isNull())
+                topNode.setLeftLinkVisible(nullNodeVisible);    //exchange node could be null node
+
+            bottomNode.setRightChild(topNode);  //bottom node get new right child, which is the top node
+            bottomNode.setRightLinkVisible(true);   //bottom node's right child could not be null node
             exchangeNode.unbindParent();
-            if(parentNode!=null)
+
+            if(parentNode!=null)    //if top node is not root node, the parentNode change its child from top node to bottom node
             {
                 if(isLeftChild)
                     parentNode.setLeftChild(bottomNode);
                 else
                     parentNode.setRightChild(bottomNode);
             }
-            resetOverlay(topNode);
+            resetOverlay(topNode);   //since top node and bottom node change the level, their graphic overlay should reset
         });
         ParallelTransition rotate = new ParallelTransition();
 
@@ -484,6 +521,37 @@ public class Animator {
                     exchangeNode.bindToParent(topNode);}));
         mainAnimation.getChildren().addAll(highlight,rotate);
         return mainAnimation;
+    }
+
+    /**
+     * This method is used to hide or show the null node of the leaves nodes.
+     * @param isVisible
+     */
+    public void setNullNodeVisible(boolean isVisible)
+    {
+        nullNodeVisible=isVisible;
+
+        //iterate the hash table to find each non-null node's children
+        //check whether it is null and change the visibility accordingly
+        for(int i = 0;i<hashTable.length;i++)
+        {
+                GraphicNode thisNode = getNode(i);
+                if(thisNode!=null)
+                {
+                    GraphicNode leftChild = thisNode.getLeftChild();
+                    GraphicNode rightChild = thisNode.getRightChild();
+                    if(leftChild.isNull())
+                    {
+                        leftChild.setVisible(isVisible);
+                        thisNode.setLeftLinkVisible(isVisible);
+                    }
+                    if(rightChild.isNull())
+                    {
+                        rightChild.setVisible(isVisible);
+                        thisNode.setRightLinkVisible(isVisible);
+                    }
+                }
+        }
     }
 //
 //    /**
@@ -522,5 +590,11 @@ public class Animator {
     {
         return hashTable[nodeID];
     }
+
+    public void clearCanvas()
+    {
+        mainPane.getChildren().clear();
+    }
+
 
 }
