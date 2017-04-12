@@ -35,7 +35,9 @@ public class GraphicNode extends Group {
      */
     public  final static Color BLACK_STROKE = Color.BLACK;
 
-    public final static Color HIGHTLIGHT = new Color(0.2118, 0.6392, 0.2588, 1);
+    public final static Color HIGHLIGHT = new Color(0.2118, 0.6392, 0.2588, 1);
+
+    public final static Color HIGHLIGHT_2 = new Color(0.1725, 0.4627, 0.6275, 1);
 
 
     /**
@@ -159,16 +161,14 @@ public class GraphicNode extends Group {
      * will remains the same
      */
     public void bindToParent(GraphicNode newParent)
-    {
-        if(newParent!=null) {
-            parent = newParent;
+    {       parent = newParent;
+        if(parent!=null) {
+
             double XDiff = getParentNode().getX() - getX();
             double YDiff = getParentNode().getY() - getY();
             getXProperty().bind(getParentNode().getXProperty().subtract(XDiff));
             getYProperty().bind(getParentNode().getYProperty().subtract(YDiff));
         }
-        else
-            parent=null;
 
     }
 
@@ -217,8 +217,10 @@ public class GraphicNode extends Group {
     public void setLeftChild(GraphicNode leftChild)
     {
         this.leftChild=leftChild;
-        leftLink.endXProperty().bind(getLeftChild().getXProperty());
-        leftLink.endYProperty().bind(getLeftChild().getYProperty());
+        if(leftChild!=null) {
+            leftLink.endXProperty().bind(getLeftChild().getXProperty());
+            leftLink.endYProperty().bind(getLeftChild().getYProperty());
+        }
     }
 
     /**
@@ -228,8 +230,10 @@ public class GraphicNode extends Group {
     public void setRightChild(GraphicNode rightChild)
     {
         this.rightChild=rightChild;
-        rightLink.endXProperty().bind(getRightChild().getXProperty());
-        rightLink.endYProperty().bind(getRightChild().getYProperty());
+        if(rightChild!=null) {
+            rightLink.endXProperty().bind(getRightChild().getXProperty());
+            rightLink.endYProperty().bind(getRightChild().getYProperty());
+        }
     }
 
     /**
@@ -241,25 +245,6 @@ public class GraphicNode extends Group {
         getYProperty().unbind();
     }
 
-    /**
-     * This method will set thsi {@link GraphicNode}'s {@link #leftChild} to {@code null} and
-     * make the {@link #leftLink} invisible.
-     */
-    public void deleteLeftChild()
-    {
-        this.leftChild=null;
-        leftLink.setVisible(false);
-    }
-
-    /**
-     * This method will set thsi {@link GraphicNode}'s {@link #rightChild} to {@code null} and
-     * make the {@link #rightLink} invisible.
-     */
-    public void deleteRightChild()
-    {
-        this.rightChild=null;
-        rightLink.setVisible(false);
-    }
 
     /**
      * This method will return a {@link Circle} which is the main Shape for any animation
@@ -271,12 +256,21 @@ public class GraphicNode extends Group {
     }
 
     /**
-     * This meothd will change the value display on the center of the node
+     * This method will change the value display on the center of the node
      * @param value
      */
     public void setValue(String value)
     {
         keyText.setText(value);
+    }
+
+    /**
+     * This method get the value of the node
+     * @return
+     */
+    public String getValue()
+    {
+        return keyText.getText();
     }
 
 
@@ -297,13 +291,13 @@ public class GraphicNode extends Group {
 
     public void highlightLeftLink()
     {
-        leftLink.setStroke(HIGHTLIGHT);
+        leftLink.setStroke(HIGHLIGHT);
         leftLink.setStrokeWidth(3f);
     }
 
     public void highlightRightLink()
     {
-        rightLink.setStroke(HIGHTLIGHT);
+        rightLink.setStroke(HIGHLIGHT);
         rightLink.setStrokeWidth(3f);
     }
 
@@ -339,5 +333,9 @@ public class GraphicNode extends Group {
     {
         rightLink.setVisible(isVisible);
     }
+
+    public double getTextX() {return keyText.getTranslateX();}
+
+    public double getTextY(){return keyText.getTranslateY();}
 
 }
