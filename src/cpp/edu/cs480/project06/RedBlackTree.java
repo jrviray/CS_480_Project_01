@@ -54,7 +54,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 					parent.leftChild = current;
 				}
                 //info.add(new Instruction("add " + key + " " + current.isLeftChild() + " " + current.parent.getData()));
-                info.add(new Instruction("add" , key, current.isLeftChild(), true, current.parent.getData(), null, null, null));
+                info.add(new Instruction("add" , value, current.isLeftChild(), true, current.parent.getData(), null, null, null));
                 addFixTree(current);
 			}
 		}
