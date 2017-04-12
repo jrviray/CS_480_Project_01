@@ -7,8 +7,10 @@ package cpp.edu.cs480.project06;/**
 import javafx.animation.Animation;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
+import javafx.beans.property.DoubleProperty;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -28,7 +30,9 @@ public class TestAnimationUI extends Application {
 
     private Animator animator;
 
-    boolean v;
+    private boolean isNullVisible;
+
+    private DoubleProperty playRate;
 
     public static void main(String[] args) {
         launch(args);
@@ -51,14 +55,27 @@ public class TestAnimationUI extends Application {
         mainPane.setPrefWidth(mainPaneWidth);
         mainPane.setPrefHeight(mainPaneHeight);
         mainScene = new Scene(rootPane);
-        animator = new Animator(mainPane);
+
         Button testButton = new Button("test");
         rootPane.setBottom(testButton);
         testButton.setOnMouseClicked(event -> test());
         Button booleanButton = new Button("boolean");
+
+        isNullVisible=false;
+        booleanButton.setOnMouseClicked(event -> {isNullVisible=!isNullVisible;animator.setNullNodeVisible(isNullVisible);});
+
+        Slider rate = new Slider();
+        rate.setMin(0);
+        rate.setMax(1.5f);
+        rate.setValue(1f);
+        rate.setShowTickLabels(true);
         rootPane.setTop(booleanButton);
-        v=false;
-        booleanButton.setOnMouseClicked(event -> {if(v)v=false;else v=true;animator.setNullNodeVisible(v);});
+        rootPane.setLeft(rate);
+
+        playRate=rate.valueProperty();
+        animator = new Animator(mainPane,isNullVisible);
+
+
     }
 
     private void test()
@@ -123,6 +140,7 @@ public class TestAnimationUI extends Application {
 
 
         }
+        thisAnimation.rateProperty().bind(playRate);
 
         if(testQueue.isEmpty()) {
             thisAnimation.play();

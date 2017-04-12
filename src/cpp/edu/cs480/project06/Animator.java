@@ -34,11 +34,11 @@ public class Animator {
      * default constructor
      * @param mainPane
      */
-    public Animator(Pane mainPane)
+    public Animator(Pane mainPane, boolean isNullVisible)
     {
         this.mainPane=mainPane;
         hashTable=new GraphicNode[2];
-        nullNodeVisible=true;
+        nullNodeVisible=isNullVisible;
     }
 
 
@@ -362,18 +362,26 @@ public class Animator {
     private SequentialTransition highlightTraversal(Circle circle,Stack<GraphicNode> path)
     {
         SequentialTransition mainAnimation = new SequentialTransition();
-        GraphicNode nextNode;
+        GraphicNode nextNode=path.pop();
         PauseTransition drawCircle = new PauseTransition(Duration.ONE);
-        drawCircle.setOnFinished(actionEvent->{drawOnCanvas(circle);});
+        circle.setTranslateX(nextNode.getX());
+        circle.setTranslateY(nextNode.getY());
+        final String thisValue = nextNode.getValue();//outputmarker
+        drawCircle.setOnFinished(actionEvent->{drawOnCanvas(circle);
+                                                System.out.println("outputmarker compare to"+thisValue);});
         mainAnimation.getChildren().add(drawCircle);
         while(!path.isEmpty()) {
+
             nextNode = path.pop();
+            final String theValue = nextNode.getValue();//outputmarker
             mainAnimation.getChildren().addAll(new PauseTransition(Duration.seconds(.5f)),
                     //when reach a node, wait for a while
-                    this.movementTo(circle, nextNode.getX(), nextNode.getY(), null)
-                    //move th the next node
+                    this.movementTo(circle, nextNode.getX(), nextNode.getY(),
+                            actionEvent->{System.out.println("outputmarker compare to"+theValue);})
+                    //move to the next node
             );
         }
+        mainAnimation.getChildren().add(new PauseTransition(Duration.seconds(.5f)));
             return  mainAnimation;
     }
 
@@ -388,10 +396,8 @@ public class Animator {
 
         // get a path from root to the parentNode in a stack
         Stack<GraphicNode> traversalStack = getTraversal(getNode(parentNodeID),null);
-        //get the root node
-        GraphicNode nextNode = traversalStack.pop();
         //initialize the highlight circle to the root node
-        Circle highlightCircle = createHighlightCircle(nextNode.getX(),nextNode.getY());
+        Circle highlightCircle = createHighlightCircle();
         //get the traversal animation
         SequentialTransition traversalAnimation = highlightTraversal(highlightCircle,traversalStack);
 
@@ -406,19 +412,16 @@ public class Animator {
 
     /**
      * This is an aiding method to create an Highlight circle but not put it on the canvas yet
-     * @param x
-     * @param y
+
      * @return
      */
-    private Circle createHighlightCircle(double x,double y)
+    private Circle createHighlightCircle()
     {
         Circle highlightCircle = new Circle(GraphicNode.RADIUS);
         highlightCircle.setFill(new Color(0,0,0,0));
         highlightCircle.setStroke(GraphicNode.HIGHLIGHT);
         highlightCircle.setStrokeType(StrokeType.OUTSIDE);
         highlightCircle.setStrokeWidth(5);
-        highlightCircle.setTranslateX(x);
-        highlightCircle.setTranslateY(y);
         return highlightCircle;
     }
 
@@ -705,11 +708,10 @@ public class Animator {
         //get a path from root to to top node
         Stack<GraphicNode> topNodePath = getTraversal(topNode,null);
         //get a path from top node to bottom node
-        Stack<GraphicNode> bottomNodePath = getTraversal(bottomNode,topNode);
+        Stack<GraphicNode> bottomNodePath = getTraversal(bottomNode,topNode.getParentNode());
 
-        GraphicNode rootNode = topNodePath.pop();   //get the root node
-        Circle circleA=createHighlightCircle(rootNode.getX(),rootNode.getY());  //circleA  will appear on root node
-        Circle circleB=createHighlightCircle(topNode.getX(),topNode.getY());    //circleB will appear on top node
+        Circle circleA=createHighlightCircle();  //circleA  will traverse from root node
+        Circle circleB=createHighlightCircle();    //circleB will traverse on top node
         circleB.setStroke(GraphicNode.HIGHLIGHT_2);
 
         System.out.println("outputmarker searching");
