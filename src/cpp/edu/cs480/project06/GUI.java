@@ -211,7 +211,7 @@ public class GUI extends Application {
      */
     private void drawNullNode(GraphicNode node)
     {
-        boolean hasNull=false;
+       /* boolean hasNull=false;
         //if there is a null node to draw, this value set true and output such action to user
 
         //check if there is a null node in the left but not draw
@@ -239,7 +239,7 @@ public class GUI extends Application {
         }
         if(hasNull)
             outputString("Fill up null node");
-
+*/
     }
 
     /**
