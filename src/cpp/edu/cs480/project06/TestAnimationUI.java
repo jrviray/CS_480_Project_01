@@ -122,9 +122,9 @@ public class TestAnimationUI extends Application {
                 thisAnimation=animator.rotateRightAnimation(0);
                 break;
             case 10:
-            	animator.fixColor(0);
-            	animator.fixColor(3);
-            	animator.fixColor(1);
+            	animator.fixColor(0, 0);
+            	animator.fixColor(3, 1);
+            	animator.fixColor(1, 1);
             	break;
 
 
