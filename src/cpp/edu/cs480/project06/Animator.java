@@ -734,14 +734,14 @@ public class Animator {
             return mainAnimation;
     }
     // Used to fix color of the graphicNode tree, should be called whenever node color is changed
-    // input color is color of node: 1 = Red, 0 = Black
-    public void fixColor(int nodeID){
+    // input node and color of node: 1 = Red, 0 = Black
+    public void fixColor(int nodeID, int color){
     	GraphicNode colorNode = getNode(nodeID);
-    	if(colorNode.nodeColor == 1){
+    	if(color == 1){
     		System.out.println("outputmarker set Node Black");
     		colorNode.setColor(0);
     	}
-    	else if(colorNode.nodeColor == 0){
+    	else if(color == 0){
     		System.out.println("outputmarker set Node Red");
     		colorNode.setColor(1);
     	}
