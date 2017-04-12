@@ -733,6 +733,21 @@ public class Animator {
         SequentialTransition mainAnimation = new SequentialTransition(topTraversal,bottomTraversal,textMovement);
             return mainAnimation;
     }
+    // Used to fix color of the graphicNode tree, should be called whenever node color is changed
+    // input color is color of node: 1 = Red, 0 = Black
+    public void fixColor(int nodeID){
+    	GraphicNode colorNode = getNode(nodeID);
+    	if(colorNode.nodeColor == 1){
+    		System.out.println("outputmarker set Node Black");
+    		colorNode.setColor(0);
+    	}
+    	else if(colorNode.nodeColor == 0){
+    		System.out.println("outputmarker set Node Red");
+    		colorNode.setColor(1);
+    	}
+ 
+    	
+    }
 
     private GraphicNode getNode(int nodeID)
     {
