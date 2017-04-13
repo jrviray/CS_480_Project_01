@@ -90,6 +90,7 @@ public class TestAnimationUI extends Application {
            testQueue.add(7);
         testQueue.add(8);
         testQueue.add(9);
+        testQueue.add(10);
            playAnimation(testQueue.poll());
     }
 
@@ -137,6 +138,11 @@ public class TestAnimationUI extends Application {
             case 9:
                 thisAnimation=animator.rotateRightAnimation(0);
                 break;
+            case 10:
+            	animator.fixColor(0, 0);
+            	animator.fixColor(3, 1);
+            	animator.fixColor(1, 1);
+            	break;
 
 
         }

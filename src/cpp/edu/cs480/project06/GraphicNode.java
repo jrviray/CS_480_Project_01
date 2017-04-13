@@ -130,7 +130,9 @@ public class GraphicNode extends Group {
 
     public final static int RED = 1;
 
-    public final static int BLACK =0;
+    public final static int BLACK = 0;
+    
+    public int nodeColor;
 
     /**
      * This method is used to set the color for the current node
@@ -142,6 +144,7 @@ public class GraphicNode extends Group {
     {
         if(color==RED)
         {
+        	nodeColor = RED;
             circle.setFill(RED_FILL);
             keyText.setFill(RED_KEY_FILL);
             circle.setStroke(RED_STROKE);
@@ -149,6 +152,7 @@ public class GraphicNode extends Group {
 
         else if(color==BLACK)
         {
+        	nodeColor = BLACK;
             circle.setFill(BLACK_FILL);
             keyText.setFill(BLACK_KEY_FILL);
             circle.setStroke(BLACK_STROKE);
