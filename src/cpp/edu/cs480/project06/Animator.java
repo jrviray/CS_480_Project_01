@@ -6,6 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
@@ -90,9 +91,9 @@ public class Animator {
      * This method is used to remove an element from the canvas
      * @param node
      */
-    private void removeFromCanvas(Node node)
+    private void removeFromCanvas(Node... node)
     {
-        mainPane.getChildren().remove(node);
+        mainPane.getChildren().removeAll(node);
     }
 
 
@@ -631,42 +632,85 @@ public class Animator {
         hashTable[deleteNodeID]=null;   //delete from the hash table
         GraphicNode parentNode = deleteNode.getParentNode();
         Boolean isLeft = deleteNode.isLeftChild();  //check if this node is left or right of its parent
-        ParallelTransition adjustment = new ParallelTransition();   //do an adjustment after the deletion
-        if(parentNode!=null) {      //if this is not a root node deletion
-            if (isLeft) {
-                parentNode.setLeftLinkVisible(false);
-                adjustment = leftAdjustment(parentNode,false);
-            }
-            else {
-                parentNode.setRightLinkVisible(false);
-                adjustment = rightAdjustment(parentNode,true);
+
+        if(deleteNode.getRightChild().isNull() && deleteNode.getLeftChild().isNull()) {   //delete node has no child
+            ParallelTransition adjustment = new ParallelTransition();   //do an adjustment after the deletion
+            if (parentNode != null) {      //if this is not a root node deletion
+                if (isLeft) {
+                    parentNode.setLeftLinkVisible(false);
+                    adjustment = leftAdjustment(parentNode, false);
+                } else {
+                    parentNode.setRightLinkVisible(false);
+                    adjustment = rightAdjustment(parentNode, true);
+                }
+
             }
 
+            ParallelTransition deleteAnimation = new ParallelTransition();
+            FadeTransition[] dele = new FadeTransition[3];  //make three fade animation for the node and its two null children
+            dele[0] = new FadeTransition(Duration.seconds(.5f), deleteNode);
+            dele[1] = new FadeTransition(Duration.seconds(1f), deleteNode.getLeftChild());
+            dele[2] = new FadeTransition(Duration.seconds(1f), deleteNode.getRightChild());
+            for (int i = 0; i < 3; i++) {
+                dele[i].setToValue(0);
+                deleteAnimation.getChildren().add(dele[i]);
+            }
+            System.out.println("outputmarker deleting");
+            deleteAnimation.setOnFinished(event -> {
+                removeFromCanvas(deleteNode.getLeftChild());
+                removeFromCanvas(deleteNode.getRightChild());
+                removeFromCanvas(deleteNode);
+                if (parentNode != null) {
+                    if (isLeft)
+                        parentNode.setLeftChild(null);
+                    else
+                        parentNode.setRightChild(null);
+                    addNullNode(parentNode);
+                }
+            });
+            SequentialTransition mainAnimation = new SequentialTransition(deleteAnimation, adjustment);
+            return mainAnimation;
         }
 
-        ParallelTransition deleteAnimation = new ParallelTransition();
-        FadeTransition[] dele = new FadeTransition[3];  //make three fade animation for the node and its two null children
-        dele[0] = new FadeTransition(Duration.seconds(.5f),deleteNode);
-        dele[1] = new FadeTransition(Duration.seconds(1f),deleteNode.getLeftChild());
-        dele[2] = new FadeTransition(Duration.seconds(1f),deleteNode.getRightChild());
-        for(int i =0;i<3;i++)
+        else    //delete node has one child
         {
-            dele[i].setToValue(0);
-            deleteAnimation.getChildren().add(dele[i]);
+
+            Animation adjustment;
+            ParallelTransition deleteAnimation = new ParallelTransition();
+            FadeTransition[] dele = new FadeTransition[2];  //make three fade animation for the node and its two null children
+            dele[0] = new FadeTransition(Duration.seconds(.5f), deleteNode);
+
+            if(deleteNode.getLeftChild().isNull())
+                dele[1] = new FadeTransition(Duration.seconds(1f),deleteNode.getLeftChild());
+            else
+                dele[1] = new FadeTransition(Duration.seconds(1f),deleteNode.getRightChild());
+            Animation movement;
+            for (int i = 0; i < 2; i++) {
+                dele[i].setToValue(0);
+                deleteAnimation.getChildren().add(dele[i]);
+            }
+
+            if(!isLeft)
+            {
+                GraphicNode swapNode = deleteNode.getRightChild();
+                swapNode.unbindParent();
+                parentNode.setRightChild(swapNode);
+                movement = movementTo(swapNode,deleteNode.getX(),deleteNode.getY(),event->{swapNode.bindToParent(parentNode);});
+                adjustment = rightAdjustment(deleteNode,true);
+
+
+            }
+            else
+            {
+                GraphicNode swapNode = deleteNode.getLeftChild();
+                swapNode.unbindParent();
+                parentNode.setLeftChild(swapNode);
+                movement = movementTo(swapNode,deleteNode.getX(),deleteNode.getY(),event->{swapNode.bindToParent(parentNode);});
+                adjustment = leftAdjustment(deleteNode,false);
+            }
+            SequentialTransition mainAnimation = new SequentialTransition(deleteAnimation,movement,adjustment);
+            return mainAnimation;
         }
-        System.out.println("outputmarker deleting");
-        deleteAnimation.setOnFinished(event -> {removeFromCanvas(deleteNode.getLeftChild());
-                                                removeFromCanvas(deleteNode.getRightChild());
-                                                removeFromCanvas(deleteNode);
-                                                if(parentNode!=null) {
-                                                    if (isLeft)
-                                                        parentNode.setLeftChild(null);
-                                                    else
-                                                        parentNode.setRightChild(null);
-                                                    addNullNode(parentNode);
-                                                }});
-        SequentialTransition mainAnimation = new SequentialTransition(deleteAnimation,adjustment);
-        return mainAnimation;
 
     }
 
@@ -684,6 +728,8 @@ public class Animator {
             //get all the info
             GraphicNode topNode = getNode(topNodeID);
             GraphicNode bottomNode = getNode(bottomNodeID);
+            hashTable[topNodeID]=bottomNode;
+            hashTable[bottomNodeID]=topNode;
             String valueA = topNode.getValue();
             String valueB = bottomNode.getValue();
 
@@ -753,6 +799,13 @@ public class Animator {
     public void clearCanvas()
     {
         mainPane.getChildren().clear();
+    }
+
+    public void forceDeletion(int nodeID)
+    {
+        GraphicNode node = getNode(nodeID);
+        removeFromCanvas(node,node.getLeftChild(),node.getRightChild());
+        hashTable[nodeID]=null;
     }
 
 

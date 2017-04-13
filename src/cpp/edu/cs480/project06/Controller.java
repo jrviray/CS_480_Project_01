@@ -160,13 +160,15 @@ public class Controller extends Application{
                 thisAnimation = animator.dataSwap((int)input.getNodeAID(), (int)input.getNodeBID());
                 break;
             case "remove":
-                thisAnimation = animator.deleteAnimation((int)input.getID());
+                    thisAnimation = animator.deleteAnimation((int)input.getID());
                 break;
             default:
                 System.out.println("Error in instruction class, instruction type unknown: " + input.getInstruction());
                 break;
         }
         if(tree.info.isEmpty()) {
+            thisAnimation.setOnFinished(event -> {addButton.setDisable(false);
+                deleteButton.setDisable(false);});
             thisAnimation.play();
         }
         else {
@@ -181,29 +183,30 @@ public class Controller extends Application{
             //value = data = ID of node (hidden from user)
             int key = Integer.parseInt(inputValue.getText());
             
-            addButton.setDisable(true);
-            deleteButton.setDisable(true);
+
             //disable buttons before the animation ends
-            int value = animator.generateNode(key);
+           int value = animator.generateNode(key);
             tree.add(key,value);
             playAnimation(tree.info.poll());
-            addButton.setDisable(false);
-            deleteButton.setDisable(false);
+            addButton.setDisable(true);
+            deleteButton.setDisable(true);
         } catch (NumberFormatException e) {
-            outputString("Invalid Input! Please enter an Integer!");
+            outputString("Invalid Input! Please enter an integer!");
         }
     }
     private void delete() {
         try {
             int key = Integer.parseInt(inputValue.getText());
-            addButton.setDisable(true);
-            deleteButton.setDisable(true);
             tree.remove(key);
             playAnimation(tree.info.poll());
-            addButton.setDisable(false);
-            deleteButton.setDisable(false);
+            addButton.setDisable(true);
+            deleteButton.setDisable(true);
         } catch (NumberFormatException e) {
             outputString("Invalid Input! Please enter an Integer!");
+        }
+        catch (RuntimeException e)
+        {
+            outputString(e.getMessage());
         }
     }
     
