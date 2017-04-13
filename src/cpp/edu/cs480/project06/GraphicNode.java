@@ -143,7 +143,6 @@ public class GraphicNode extends Group {
     {
         if(color==RED)
         {
-        	nodeColor = RED;
             circle.setFill(RED_FILL);
             keyText.setFill(RED_KEY_FILL);
             circle.setStroke(RED_STROKE);
@@ -151,7 +150,6 @@ public class GraphicNode extends Group {
 
         else if(color==BLACK)
         {
-        	nodeColor = BLACK;
             circle.setFill(BLACK_FILL);
             keyText.setFill(BLACK_KEY_FILL);
             circle.setStroke(BLACK_STROKE);
