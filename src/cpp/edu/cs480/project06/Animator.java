@@ -3,13 +3,13 @@ import javafx.animation.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.effect.Bloom;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Stack;
@@ -735,6 +735,21 @@ public class Animator {
         SequentialTransition mainAnimation = new SequentialTransition(topTraversal,bottomTraversal,textMovement);
             return mainAnimation;
     }
+    // Used to fix color of the graphicNode tree, should be called whenever node color is changed
+    // input node and color of node: 1 = Red, 0 = Black
+    public void fixColor(int nodeID, int color){
+    	GraphicNode colorNode = getNode(nodeID);
+    	if(color == 1){
+    		System.out.println("outputmarker set Node Black");
+    		colorNode.setColor(0);
+    	}
+    	else if(color == 0){
+    		System.out.println("outputmarker set Node Red");
+    		colorNode.setColor(1);
+    	}
+ 
+    	
+    }
 
     private GraphicNode getNode(int nodeID)
     {
@@ -745,6 +760,7 @@ public class Animator {
     {
         mainPane.getChildren().clear();
     }
+
 
 
 }
