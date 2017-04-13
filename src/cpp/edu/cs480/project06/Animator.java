@@ -616,17 +616,7 @@ public class Animator {
                 }
         }
     }
-//
-//    /**
-//     * This method is to generate an animation for recoloring
-//     * @param nodeID
-//     * @param color
-//     * @return
-//     */
-//    public SequentialTransition recolorAnimation(Queue<Integer> nodeID, Queue<Boolean> color)
-//    {
-//
-//    }
+
 
     /**
      * This method is to generate an animation for deletion
@@ -735,17 +725,21 @@ public class Animator {
         SequentialTransition mainAnimation = new SequentialTransition(topTraversal,bottomTraversal,textMovement);
             return mainAnimation;
     }
-    // Used to fix color of the graphicNode tree, should be called whenever node color is changed
-    // input node and color of node: 1 = Red, 0 = Black
-    public void fixColor(int nodeID, int color){
+   /**
+    * This method is used to fix color of the graphicNode tree, should be called whenever node color is changed
+    * @param nodeID
+    * @param isRed
+    * {@code true} if the node changes to red, {@code false} if the node changes to black
+    **/
+    public void recolor(int nodeID, boolean isRed){
     	GraphicNode colorNode = getNode(nodeID);
-    	if(color == 1){
+    	if(isRed){
     		System.out.println("outputmarker set Node Black");
-    		colorNode.setColor(0);
+    		colorNode.setColor(GraphicNode.RED);
     	}
-    	else if(color == 0){
+    	else{
     		System.out.println("outputmarker set Node Red");
-    		colorNode.setColor(1);
+    		colorNode.setColor(GraphicNode.BLACK);
     	}
  
     	
