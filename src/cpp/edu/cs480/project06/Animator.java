@@ -288,12 +288,13 @@ public class Animator {
 
         adjustmentAnimation.setOnFinished(actionEvent->{this.removeFromCanvas(parentNode.getLeftChild());  //remove the null node
             parentNode.setLeftChild(newNode);
-            parentNode.setLeftLinkVisible(true);});  //create the link and make it visible
+            parentNode.setLeftLinkVisible(true);
+            outputString("insert node "+newNode.getValue()+" to the left of node "+parentNode.getValue());});  //create the link and make it visible
         double targetX=parentNode.getX()-UNIT_DISTANCE,
                 targetY=parentNode.getY()+UNIT_DISTANCE;
-        outputString("insert node "+newNode.getValue());
+        outputString("Finding an empty spot to insert "+newNode.getValue());
         mainAnimation.getChildren().addAll(
-                                    this.insertionTraversal(parentNodeID,newNode.getValue()), //add the highlight animation
+                                    this.insertionTraversal(parentNodeID), //add the highlight animation
                                     adjustmentAnimation, //add adjustment animation
                                     //add the movement animation
                                     this.movementTo(newNode,targetX,targetY,
@@ -320,13 +321,14 @@ public class Animator {
 
         adjustmentAnimation.setOnFinished(actionEvent->{this.removeFromCanvas(parentNode.getRightChild());  //remove the null node
             parentNode.setRightChild(newNode);
-            parentNode.setRightLinkVisible(true);});  //create the link and make it visible
+            parentNode.setRightLinkVisible(true);
+            outputString("insert node "+newNode.getValue()+" to the right of node "+parentNode.getValue());});  //create the link and make it visible
 
         double targetX=parentNode.getX()+UNIT_DISTANCE,
                 targetY=parentNode.getY()+UNIT_DISTANCE;
-        outputString("insert node "+newNode.getValue());
+        outputString("Finding an empty spot to insert "+newNode.getValue());
         mainAnimation.getChildren().addAll(
-                this.insertionTraversal(parentNodeID,newNode.getValue()), //add the highlight animation
+                this.insertionTraversal(parentNodeID), //add the highlight animation
                 adjustmentAnimation, //add adjustment animation
                 //add the movement animation
                 this.movementTo(newNode, targetX, targetY,
@@ -363,25 +365,22 @@ public class Animator {
      * @param path
      * @return
      */
-    private SequentialTransition highlightTraversal(Circle circle,Stack<GraphicNode> path,String thisValue)
+    private SequentialTransition highlightTraversal(Circle circle,Stack<GraphicNode> path)
     {
         SequentialTransition mainAnimation = new SequentialTransition();
         final GraphicNode startingNode=path.pop();
         PauseTransition drawCircle = new PauseTransition(Duration.ONE);
         circle.setTranslateX(startingNode.getX());
         circle.setTranslateY(startingNode.getY());
-        drawCircle.setOnFinished(actionEvent->{drawOnCanvas(circle);
-            outputString("comparing "+ thisValue +" with "+startingNode.getValue());});
+        drawCircle.setOnFinished(actionEvent->{drawOnCanvas(circle);});
         mainAnimation.getChildren().add(drawCircle);
         while(!path.isEmpty()) {
 
             final GraphicNode nextNode = path.pop();
             mainAnimation.getChildren().addAll(new PauseTransition(Duration.seconds(.5f)),
                     //when reach a node, wait for a while
-                    this.movementTo(circle, nextNode.getX(), nextNode.getY(),
-                            actionEvent->{outputString("comparing "+ thisValue +" with "+nextNode.getValue());})
+                    this.movementTo(circle, nextNode.getX(), nextNode.getY(),null));
                     //move to the next node
-            );
         }
         mainAnimation.getChildren().add(new PauseTransition(Duration.seconds(.5f)));
             return  mainAnimation;
@@ -392,7 +391,7 @@ public class Animator {
      * @param parentNodeID
      * @return
      */
-    private SequentialTransition insertionTraversal(int parentNodeID,String thisValue)
+    private SequentialTransition insertionTraversal(int parentNodeID)
     {
         SequentialTransition mainAnimation = new SequentialTransition();
 
@@ -401,7 +400,7 @@ public class Animator {
         //initialize the highlight circle to the root node
         Circle highlightCircle = createHighlightCircle();
         //get the traversal animation
-        SequentialTransition traversalAnimation = highlightTraversal(highlightCircle,traversalStack,thisValue);
+        SequentialTransition traversalAnimation = highlightTraversal(highlightCircle,traversalStack);
 
         //remove the highlight circle from the canvas
         PauseTransition removeCircle = new PauseTransition(Duration.seconds(.5f));
@@ -481,7 +480,7 @@ public class Animator {
         SequentialTransition mainAnimation = new SequentialTransition();
         topNode.highlightRightLink();
         PauseTransition highlight = new PauseTransition(Duration.ONE);   //highlight the rotation link
-        outputString("Invariant is broken");
+        outputString("Invariant is broken.\nPress fix to continue.");
 
         //after the highlight preparing for rotation
         highlight.setOnFinished(event -> {
@@ -552,7 +551,7 @@ public class Animator {
         SequentialTransition mainAnimation = new SequentialTransition();
         topNode.highlightLeftLink();    //highlight the rotation link
         PauseTransition highlight = new PauseTransition(Duration.ONE);
-        outputString("Invariant is broken");
+        outputString("Invariant is broken.\nPress fix to continue.");
         //after the highlight preparing for rotation
         highlight.setOnFinished(event -> {
             outputString("Rotate node "+topNode.getValue()+" to the right");
@@ -751,7 +750,7 @@ public class Animator {
         Circle circleB=createHighlightCircle();    //circleB will traverse on top node
         circleB.setStroke(GraphicNode.HIGHLIGHT_2);
 
-        SequentialTransition bottomTraversal = highlightTraversal(circleB,bottomNodePath,topNode.getLeftChild().getValue());
+        SequentialTransition bottomTraversal = highlightTraversal(circleB,bottomNodePath);
         bottomTraversal.setOnFinished(event -> {drawOnCanvas(topText);drawOnCanvas(bottomText);
         outputString("Swapping "+topText.getText()+" and "+ bottomText.getText());});
 

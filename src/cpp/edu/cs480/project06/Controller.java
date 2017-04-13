@@ -56,7 +56,7 @@ public class Controller extends Application{
         deleteButton.setDisable(true);
         fixButton = new Button("Fix");
         fixButton.setDisable(true);
-        fixButton.setOnMouseClicked(event -> {thisAnimation.play();});
+        fixButton.setOnMouseClicked(event -> {thisAnimation.play(); fixButton.setDisable(true);});
         saveButton = new Button("Save");
         saveButton.setDisable(true);
         loadButton = new Button("Load");
