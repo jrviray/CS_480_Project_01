@@ -3,13 +3,13 @@ import javafx.animation.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.effect.Bloom;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Stack;
@@ -745,6 +745,7 @@ public class Animator {
     {
         mainPane.getChildren().clear();
     }
+
 
 
 }
