@@ -132,7 +132,6 @@ public class GraphicNode extends Group {
 
     public final static int BLACK = 0;
     
-    public int nodeColor;
 
     /**
      * This method is used to set the color for the current node
