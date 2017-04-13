@@ -29,7 +29,7 @@ import java.util.Queue;
 public class Controller extends Application{
     private Scene mainScene;
     private Pane mainPane;
-    private double mainPaneWidth = 1200;
+    private double mainPaneWidth = 1600;
     private double mainPaneHeight = 600;
     private Button addButton, deleteButton, fixButton, saveButton, loadButton;
     private TextField inputValue;
@@ -39,12 +39,9 @@ public class Controller extends Application{
     private RedBlackTree<Integer, Integer> tree;
     private DoubleProperty playRate;
     private boolean isNullVisible;
+    private Animation thisAnimation;
     
-    
-    
-    
-    
-    
+
     private void initialize() {
         rootPane = new BorderPane();
         mainScene = new Scene(rootPane);
@@ -59,6 +56,7 @@ public class Controller extends Application{
         deleteButton.setDisable(true);
         fixButton = new Button("Fix");
         fixButton.setDisable(true);
+        fixButton.setOnMouseClicked(event -> {thisAnimation.play();});
         saveButton = new Button("Save");
         saveButton.setDisable(true);
         loadButton = new Button("Load");
@@ -79,7 +77,7 @@ public class Controller extends Application{
         rootPane.setTop(topPane);
         Slider rate = new Slider();
         rate.setMin(0);
-        rate.setMax(2f);
+        rate.setMax(4f);
         rate.setValue(1f);
         playRate = rate.valueProperty();
 
@@ -116,7 +114,7 @@ public class Controller extends Application{
         scrollPane.setPrefViewportHeight(mainPaneHeight);
         scrollPane.setPrefViewportWidth(mainPaneWidth);
         rootPane.setCenter(scrollPane);
-        animator = new Animator(mainPane, isNullVisible);
+        animator = new Animator(mainPane, isNullVisible,outputArea);
         tree = new RedBlackTree<Integer, Integer>();
     }
     public static void main(String[] args) {
@@ -154,8 +152,9 @@ public class Controller extends Application{
     private void playAnimation(Instruction input) {
         System.out.println(input);
         //PauseTransition is just so thisAnimation is initialized
-        Animation thisAnimation = new PauseTransition(Duration.ZERO);
-        switch (input.getInstruction()) {
+        thisAnimation = new PauseTransition(Duration.ZERO);
+        String thisInstruction = input.getInstruction();
+        switch (thisInstruction) {
             case "add":
                 if(input.getParentID() == null) {
                     thisAnimation = insertRoot((int)input.getID());                        
@@ -190,6 +189,11 @@ public class Controller extends Application{
             thisAnimation.setOnFinished(event -> playAnimation(tree.info.poll()));
             thisAnimation.rateProperty().bind(playRate);
             thisAnimation.play();
+            if(thisInstruction.equals("rotate"))
+            {
+                thisAnimation.pause();
+                fixButton.setDisable(false);
+            }
         }
     }
     private void add() {
