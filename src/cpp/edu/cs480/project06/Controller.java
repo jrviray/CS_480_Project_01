@@ -8,6 +8,7 @@ package cpp.edu.cs480.project06;
 import javafx.animation.Animation;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
+import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -36,7 +37,8 @@ public class Controller extends Application{
     private TextArea outputArea;
     private Animator animator;
     private RedBlackTree<Integer, Integer> tree;
-    private Queue playQueue;
+    private DoubleProperty playRate;
+    private boolean isNullVisible;
     
     
     
@@ -74,12 +76,24 @@ public class Controller extends Application{
         BorderPane topPane = new BorderPane();
         topPane.setLeft(leftPane);
         topPane.setRight(rightPane);
+        rootPane.setTop(topPane);
+        Slider rate = new Slider();
+        rate.setMin(0);
+        rate.setMax(2f);
+        rate.setValue(1f);
+        playRate = rate.valueProperty();
+
+        CheckBox nullVisible = new CheckBox("display null leaves");
+        nullVisible.setSelected(false);
+        isNullVisible=false;
+        nullVisible.selectedProperty().addListener(action->{isNullVisible=!isNullVisible;animator.setNullNodeVisible(isNullVisible);});
 
         leftPane.getChildren().addAll(inputLabel,inputValue,addButton,
-                deleteButton,fixButton);
+                deleteButton,fixButton,rate,nullVisible);
         rightPane.getChildren().addAll(saveButton,loadButton);
 
-        rootPane.setTop(topPane);
+
+
         //done setting up the top part of the cpp.edu.cs480.project06.UI
 
         outputArea = new TextArea();
@@ -102,7 +116,7 @@ public class Controller extends Application{
         scrollPane.setPrefViewportHeight(mainPaneHeight);
         scrollPane.setPrefViewportWidth(mainPaneWidth);
         rootPane.setCenter(scrollPane);
-        animator = new Animator(mainPane, false);
+        animator = new Animator(mainPane, isNullVisible);
         tree = new RedBlackTree<Integer, Integer>();
     }
     public static void main(String[] args) {
@@ -169,10 +183,12 @@ public class Controller extends Application{
         if(tree.info.isEmpty()) {
             thisAnimation.setOnFinished(event -> {addButton.setDisable(false);
                 deleteButton.setDisable(false);});
+            thisAnimation.rateProperty().bind(playRate);
             thisAnimation.play();
         }
         else {
             thisAnimation.setOnFinished(event -> playAnimation(tree.info.poll()));
+            thisAnimation.rateProperty().bind(playRate);
             thisAnimation.play();
         }
     }
@@ -204,10 +220,10 @@ public class Controller extends Application{
         } catch (NumberFormatException e) {
             outputString("Invalid Input! Please enter an Integer!");
         }
-        catch (RuntimeException e)
-        {
-            outputString(e.getMessage());
-        }
+//        catch (RuntimeException e)
+//        {
+//            outputString(e.getMessage());
+//        }
     }
     
     private void outputString(String output)

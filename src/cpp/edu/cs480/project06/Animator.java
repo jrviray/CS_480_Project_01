@@ -638,10 +638,8 @@ public class Animator {
             if (parentNode != null) {      //if this is not a root node deletion
                 if (isLeft) {
                     parentNode.setLeftLinkVisible(false);
-                    adjustment = leftAdjustment(parentNode, false);
                 } else {
                     parentNode.setRightLinkVisible(false);
-                    adjustment = rightAdjustment(parentNode, true);
                 }
 
             }
@@ -668,47 +666,47 @@ public class Animator {
                     addNullNode(parentNode);
                 }
             });
-            SequentialTransition mainAnimation = new SequentialTransition(deleteAnimation, adjustment);
+            SequentialTransition mainAnimation = new SequentialTransition(deleteAnimation);
             return mainAnimation;
         }
 
         else    //delete node has one child
         {
 
-            Animation adjustment;
             ParallelTransition deleteAnimation = new ParallelTransition();
-            FadeTransition[] dele = new FadeTransition[2];  //make three fade animation for the node and its two null children
+            FadeTransition[] dele = new FadeTransition[2];  //make two fade animation for the node and its two null children
             dele[0] = new FadeTransition(Duration.seconds(.5f), deleteNode);
+            final GraphicNode swapNode;
 
-            if(deleteNode.getLeftChild().isNull())
-                dele[1] = new FadeTransition(Duration.seconds(1f),deleteNode.getLeftChild());
-            else
-                dele[1] = new FadeTransition(Duration.seconds(1f),deleteNode.getRightChild());
+            if(deleteNode.getLeftChild().isNull()) {
+                dele[1] = new FadeTransition(Duration.seconds(1f), deleteNode.getLeftChild());
+                swapNode = deleteNode.getRightChild();
+            }
+            else {
+                dele[1] = new FadeTransition(Duration.seconds(1f), deleteNode.getRightChild());
+                swapNode = deleteNode.getLeftChild();
+            }
+
+            swapNode.unbindParent();
             Animation movement;
             for (int i = 0; i < 2; i++) {
                 dele[i].setToValue(0);
                 deleteAnimation.getChildren().add(dele[i]);
             }
 
-            if(!isLeft)
+            if(isLeft==null)    //this is a root node
             {
-                GraphicNode swapNode = deleteNode.getRightChild();
-                swapNode.unbindParent();
+            }
+            else if(!isLeft)
+            {
                 parentNode.setRightChild(swapNode);
-                movement = movementTo(swapNode,deleteNode.getX(),deleteNode.getY(),event->{swapNode.bindToParent(parentNode);});
-                adjustment = rightAdjustment(deleteNode,true);
-
-
             }
             else
             {
-                GraphicNode swapNode = deleteNode.getLeftChild();
-                swapNode.unbindParent();
                 parentNode.setLeftChild(swapNode);
-                movement = movementTo(swapNode,deleteNode.getX(),deleteNode.getY(),event->{swapNode.bindToParent(parentNode);});
-                adjustment = leftAdjustment(deleteNode,false);
             }
-            SequentialTransition mainAnimation = new SequentialTransition(deleteAnimation,movement,adjustment);
+            movement = movementTo(swapNode,deleteNode.getX(),deleteNode.getY(),event->{swapNode.bindToParent(parentNode);});
+            SequentialTransition mainAnimation = new SequentialTransition(deleteAnimation,movement);
             return mainAnimation;
         }
 
