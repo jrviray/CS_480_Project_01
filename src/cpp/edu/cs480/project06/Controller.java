@@ -5,6 +5,8 @@
  */
 package cpp.edu.cs480.project06;
 
+import java.util.*;
+import javafx.animation.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -19,6 +21,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 /**
  *
@@ -34,7 +37,8 @@ public class Controller extends Application{
     private BorderPane rootPane;
     private TextArea outputArea;
     private Animator animator;
-    private RedBlackTree<Integer, String> tree;
+    private RedBlackTree<Integer, Integer> tree;
+    private Queue playQueue;
     
     
     
@@ -48,8 +52,9 @@ public class Controller extends Application{
         inputValue.setPrefWidth(50f);
         addButton = new Button("Add");
         //addButton on mouse action event
-        addButton.setOnMouseClicked((event -> add()));
+        addButton.setOnMouseClicked(event -> add());
         deleteButton = new Button("Delete");
+        deleteButton.setOnMouseClicked(event -> delete());
         //delete button on mouse action event
         deleteButton.setDisable(true);
         fixButton = new Button("Fix");
@@ -99,8 +104,8 @@ public class Controller extends Application{
         scrollPane.setPrefViewportHeight(mainPaneHeight);
         scrollPane.setPrefViewportWidth(mainPaneWidth);
         rootPane.setCenter(scrollPane);
-        animator = new Animator(mainPane);
-        tree = new RedBlackTree<Integer, String>();
+        animator = new Animator(mainPane, false);
+        tree = new RedBlackTree<Integer, Integer>();
     }
     public static void main(String[] args) {
         launch(args);
@@ -113,32 +118,96 @@ public class Controller extends Application{
         primaryStage.show();
 
     }
+    private Animation insert(int ID, int parentID, boolean leftRight) {
+        //left is true, right is false
+        if(leftRight) {
+            return animator.insertLeftAnimation(ID, parentID);
+        }
+        else {
+            return animator.insertRightAnimation(ID, parentID);
+        }
+    }
+    private Animation insertRoot(int ID) {
+        System.out.println(ID);
+        return animator.insertRootAnimation(ID);
+    }
+    private Animation rotate(int ID, boolean leftRight) {
+        if(leftRight) {
+            return animator.rotateLeftAnimation(ID);
+        }
+        else {
+            return animator.rotateRightAnimation(ID);
+        }
+    }
+    private void playAnimation(Instruction input) {
+        System.out.println(input);
+        //PauseTransition is just so thisAnimation is initialized
+        Animation thisAnimation = new PauseTransition(Duration.ZERO);
+        switch (input.getInstruction()) {
+            case "add":
+                if(input.getParentID() == null) {
+                    thisAnimation = insertRoot((int)input.getID());                        
+                }
+                else {
+                    thisAnimation = insert((int)input.getID(), (int)input.getID(), input.getLR());
+                }   break;
+            case "rotate":
+                thisAnimation = rotate((int)input.getID(), input.getLR());
+                break;
+            case "recolor":
+                //thisAnimation = recolor
+                animator.recolor((int)input.getID(), input.getColor());
+                break;
+            case "swap":
+                thisAnimation = animator.dataSwap((int)input.getNodeAID(), (int)input.getNodeBID());
+                break;
+            case "remove":
+                thisAnimation = animator.deleteAnimation((int)input.getID());
+                break;
+            default:
+                System.out.println("Error in instruction class, instruction type unknown: " + input.getInstruction());
+                break;
+        }
+        if(tree.info.isEmpty()) {
+            thisAnimation.play();
+        }
+        else {
+            thisAnimation.setOnFinished(event -> playAnimation(tree.info.poll()));
+            thisAnimation.play();
+        }
+    }
     private void add() {
         try {
             //for Input validation
-            int value = Integer.parseInt(inputValue.getText());
+            //key = user input 
+            //value = data = ID of node (hidden from user)
+            int key = Integer.parseInt(inputValue.getText());
             
             addButton.setDisable(true);
             deleteButton.setDisable(true);
             //disable buttons before the animation ends
-            
-            
-            //begin flow process:
-            //
-            int key = animator.generateNode(value);
-            tree.add(key, Integer.toString(value));
-            
+            int value = animator.generateNode(key);
+            tree.add(key, value);
+            playAnimation(tree.info.poll());
+            addButton.setDisable(false);
+            deleteButton.setDisable(false);
         } catch (NumberFormatException e) {
             outputString("Invalid Input! Please enter an Integer!");
         }
     }
-    
-    
-    
-    
-    
-    
-    
+    private void delete() {
+        try {
+            int key = Integer.parseInt(inputValue.getText());
+            addButton.setDisable(true);
+            deleteButton.setDisable(true);
+            tree.remove(key);
+            playAnimation(tree.info.poll());
+            addButton.setDisable(false);
+            deleteButton.setDisable(false);
+        } catch (NumberFormatException e) {
+            outputString("Invalid Input! Please enter an Integer!");
+        }
+    }
     
     private void outputString(String output)
     {
