@@ -15,6 +15,8 @@ package cpp.edu.cs480.project06; /**
 
 import java.util.*;
 
+import cpp.edu.cs480.project06.RedBlackTree.Node;
+
 
 
 public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
@@ -54,6 +56,10 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 					current = new Node(key, value, RED);
 					current.parent = parent;
 					parent.leftChild = current;
+				} else if (key.compareTo(parent.key) == 0) {
+					current = new Node(key, value, RED);
+					current.parent = parent;
+					parent.leftChild = current;
 				}
 				info.add(new Instruction("add", value, current.isLeftChild(), true, current.parent.getData(), null,
 						null, null));
@@ -82,6 +88,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 			} else if (!target.parent.isLeftChild() && !target.isLeftChild()) {
 
 				addRightRightCase(target);
+				
 			} else if (!target.parent.isLeftChild() && target.isLeftChild()) {
 
 				rightLeftCase(target);
@@ -183,6 +190,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 	public void addRightRightCase(Node target) {
 		if (!target.isLeftChild() && !target.isLeftChild()) {
 			leftRotate(target.parent.parent);
+			
 
 			if (target.color == RED && target.parent.color == RED) {
 				if (target.isLeftChild()) {
@@ -266,8 +274,8 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 	 * Rotates nodes in the tree to the left one time based on its target node.
 	 */
 	public void leftRotate(Node target) {
-		Node temp = target.rightChild;
 		info.add(new Instruction("rotate", target.getData(), true, true, null, null, null, null));
+		Node temp = target.rightChild;
 		if (target == root) {
 			root.rightChild = temp.leftChild;
 			temp.leftChild.parent = root;
@@ -294,6 +302,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 	 */
 	public Node findUncle(Node target) {
 		Node uncle = null;
+			
 		if (target.parent.parent.leftChild != null && target.parent.parent.leftChild == target.parent) {
 			uncle = target.parent.parent.rightChild;
 		} else {
@@ -409,7 +418,6 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 				target.parent.leftChild = new Node();
 				target = target.parent;
 				info.add(new Instruction("remove", target.getData(), false, false, null, null, null, null));
-				System.out.println("the target is " + target.toString());
 				leftRotate(target);
 				deleteRecolor(target);
 				leftRotate(target);
@@ -419,7 +427,6 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 				info.add(new Instruction("remove", target.getData(), false, false, null, null, null, null));
 				target.parent.leftChild = new Node();
 				target = target.parent;
-				System.out.println("the target is " + target.toString());
 				leftRotate(target);
 				deleteRecolor(target);
 
@@ -483,15 +490,16 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 			}
 		} else {
 			if (target.isLeftChild()) {
+				replaceNode.parent.rightChild = new Node();
 				target.parent.leftChild = replaceNode;
 				replaceNode.parent = target.parent;
 				deleteRecolor(replaceNode);
+				
 
 			} else {
-
+				replaceNode.parent.leftChild = new Node();
 				target.parent.rightChild = replaceNode;
 				replaceNode.parent = target.parent;
-
 				deleteRecolor(replaceNode);
 
 			}
