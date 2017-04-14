@@ -10,6 +10,7 @@ import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -79,6 +80,7 @@ public class Controller extends Application{
         topPane.setLeft(leftPane);
         topPane.setRight(rightPane);
         rootPane.setTop(topPane);
+
         Slider rate = new Slider();
         rate.setMin(0);
         rate.setMax(4f);
@@ -102,22 +104,18 @@ public class Controller extends Application{
         outputArea.setFont(Font.font(16));
         resetOutputArea();
         outputArea.setEditable(false);
-        ScrollPane bottomScrollPane = new ScrollPane(outputArea);
-        bottomScrollPane.setFitToWidth(true);
-        bottomScrollPane.setFitToHeight(true);
-        bottomScrollPane.setPrefHeight(100);
-        rootPane.setBottom(bottomScrollPane);
-        bottomScrollPane.setVvalue(1);
+
 
         mainPane=new Pane();
         mainPane.setPadding(new Insets(20,20,20,20));
+        mainPane.setPrefHeight(mainPaneHeight);
+        mainPane.setPrefWidth(mainPaneWidth);
 
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(mainPane);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setPrefViewportHeight(mainPaneHeight);
-        scrollPane.setPrefViewportWidth(mainPaneWidth);
-        rootPane.setCenter(scrollPane);
+        SplitPane container = new SplitPane(mainPane,outputArea);
+        container.setOrientation(Orientation.VERTICAL);
+        container.setDividerPositions(.8f,.2f);
+
+        rootPane.setCenter(container);
         animator = new Animator(mainPane, isNullVisible,outputArea);
         tree = new RedBlackTree<Integer, Integer>();
 
@@ -186,18 +184,24 @@ public class Controller extends Application{
                 break;
         }
         if(tree.info.isEmpty()) {
-            thisAnimation.setOnFinished(event -> {
+
+            Animation centerAdjustment = animator.centerAdjustment(tree.root.getData());
+            centerAdjustment.setOnFinished(event -> {
+
                 addButton.setDisable(false);
                 deleteButton.setDisable(false);
                 saveButton.setDisable(false);
-                loadButton.setDisable(false);});
+                loadButton.setDisable(false);
+                inputValue.clear();});
             thisAnimation.rateProperty().bind(playRate);
+            thisAnimation.setOnFinished(actionEvent -> {centerAdjustment.play();});
             thisAnimation.play();
         }
         else {
             thisAnimation.setOnFinished(event -> playAnimation(tree.info.poll()));
             thisAnimation.rateProperty().bind(playRate);
             thisAnimation.play();
+
             if(thisInstruction.equals("rotate"))
             {
                 thisAnimation.pause();

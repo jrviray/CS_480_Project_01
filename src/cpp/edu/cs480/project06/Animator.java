@@ -248,6 +248,14 @@ public class Animator {
         return mainAnimation;
     }
 
+    public TranslateTransition centerAdjustment(int rootID)
+    {
+        GraphicNode root = getNode(rootID);
+        TranslateTransition mainAnimation = movementTo(root,mainPane.getWidth()/2,root.getY(),null);
+        mainAnimation.setRate(3f);
+        return mainAnimation;
+    }
+
 
 
     /**
@@ -826,6 +834,7 @@ public class Animator {
         }
         resetOverlay(getNode(rootID));
     }
+
 
 
 }
