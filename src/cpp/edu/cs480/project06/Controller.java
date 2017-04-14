@@ -224,6 +224,12 @@ public class Controller extends Application{
         } catch (NumberFormatException e) {
             outputString("Invalid Input! Please enter an integer!");
         }
+        catch (NullPointerException e)
+        {
+            outputString("Error!");
+            e.printStackTrace();
+            tree.info.clear();
+        }
     }
     private void delete() {
         try {
@@ -237,10 +243,11 @@ public class Controller extends Application{
         } catch (NumberFormatException e) {
             outputString("Invalid Input! Please enter an Integer!");
         }
-//        catch (RuntimeException e)
-//        {
-//            outputString(e.getMessage());
-//        }
+        catch (NullPointerException e)
+        {
+            outputString("No such node found!");
+            tree.info.clear();
+        }
     }
     
     private void outputString(String output)
