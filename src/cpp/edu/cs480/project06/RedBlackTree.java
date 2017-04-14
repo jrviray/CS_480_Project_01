@@ -464,7 +464,22 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 		 */
 		info.add(new Instruction("swap", null, false, false, null, target.getData(), replaceNode.getData(), null));
 		info.add(new Instruction("remove", target.getData(), false, false, null, null, null, null));
-		if (target == root) {
+		
+		if (target.rightChild.equals(replaceNode)) {
+			System.out.println("the problem is here");
+			replaceNode.leftChild = target.leftChild;
+			replaceNode.rightChild = target.leftChild;
+			target.leftChild.parent = replaceNode;
+			replaceNode.rightChild = new Node();
+			root.parent = null;
+		} else if (target.leftChild.equals(replaceNode)) {
+
+			replaceNode.rightChild = target.rightChild;
+			replaceNode.leftChild = target.leftChild;
+			target.leftChild.parent = replaceNode;
+			target.rightChild.parent = replaceNode;
+			root.parent = null;
+		} else if (target == root) {
 			if (root.rightChild == replaceNode) {
 				replaceNode.parent = replaceNode;
 				replaceNode.leftChild = root.leftChild;
@@ -506,20 +521,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 			}
 		}
 
-		if (target.rightChild.equals(replaceNode)) {
-			replaceNode.leftChild = target.leftChild;
-			replaceNode.rightChild = target.leftChild;
-			target.leftChild.parent = replaceNode;
-			replaceNode.rightChild = new Node();
-			root.parent = null;
-		} else {
-
-			replaceNode.rightChild = target.rightChild;
-			replaceNode.leftChild = target.leftChild;
-			target.leftChild.parent = replaceNode;
-			target.rightChild.parent = replaceNode;
-			root.parent = null;
-		}
+		
 
 	}
 
