@@ -363,8 +363,18 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 	 * have been made.
 	 */
 	public void deleteRecolor(Node target) {
+		System.out.println("this is being called");
+		System.out.println("target is " + target.key);
+		System.out.println("target.color is " + target.color);
+		System.out.println("target.parent is " + target.parent.key);
+		System.out.println("target.parent.leftChild is " + target.parent.leftChild.key);
+		System.out.println("target.leftChild is " + target.leftChild.key);
+		System.out.println("target.leftChild.color is " + target.leftChild.color);
+		
+				
 		if (target.color == RED && target.isLeftChild()) {
 			if (target.parent.rightChild.color == RED) {
+				System.out.println("error is here0");
 				target.color = BLACK;
 				info.add(new Instruction("recolor", target.getData(), false, false, null, null, null, null));
 				target.parent.color = RED;
@@ -375,6 +385,11 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 			}
 		} else if (target.color == RED && !target.isLeftChild()) {
 			if (target.parent.leftChild.color == RED) {
+				System.out.println("target is " + target.key);
+				System.out.println("target.parent is " + target.parent.key);
+				System.out.println("target.parent.leftChild is " + target.parent.leftChild.key);
+				System.out.println("target.leftChild is " + target.leftChild.key);
+				System.out.println("error is here1");
 				target.color = BLACK;
 				info.add(new Instruction("recolor", target.getData(), false, false, null, null, null, null));
 				target.parent.color = RED;
@@ -383,14 +398,31 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 				info.add(new Instruction("recolor", target.parent.leftChild.getData(), false, false, null, null, null,
 						null));
 			} else {
-				target.color = RED;
-				info.add(new Instruction("recolor", target.getData(), false, true, null, null, null, null));
+				System.out.println("error is here");
+				target.color = BLACK;
+				target.leftChild.color = RED;
+				info.add(new Instruction("recolor", target.getData(), false, false, null, null, null, null));
+				info.add(new Instruction("recolor", target.leftChild.getData(), false, true, null, null, null, null));
 			}
 		} else if (target.color == BLACK && target.parent == root) {
+			if (target.hasLeftChild()) {
+				target.color = BLACK;
+				target.leftChild.color = RED;
+				info.add(new Instruction("recolor", target.getData(), false, false, null, null, null, null));
+				info.add(new Instruction("recolor", target.leftChild.getData(), false, true, null, null, null, null));
+			} else if (target.hasRightChild()) {
+				target.color = BLACK;
+				target.rightChild.color = RED;
+				info.add(new Instruction("recolor", target.getData(), false, false, null, null, null, null));
+				info.add(new Instruction("recolor", target.rightChild.getData(), false, true, null, null, null, null));
+			} else {
+			System.out.println("error is here2");
 
 			target.color = RED;
 			info.add(new Instruction("recolor", target.getData(), false, true, null, null, null, null));
+			}
 		} else if (target.color == BLACK && target.parent.color == RED) {
+			System.out.println("error is here3");
 			target.leftChild.color = RED;
 			target.parent.color = BLACK;
 			info.add(new Instruction("recolor", target.parent.getData(), false, false, null, null, null, null));
@@ -481,11 +513,15 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 		if (target.rightChild.equals(replaceNode)) {
 			System.out.println("the problem is here");
 			target.parent.rightChild = replaceNode;
+			replaceNode.parent = target.parent;
 			replaceNode.leftChild = target.leftChild;
 			replaceNode.rightChild = target.rightChild;
 			target.leftChild.parent = replaceNode;
 			replaceNode.rightChild = new Node();
+			System.out.println("this is replaceNode: " + replaceNode.key);
+			deleteRecolor(replaceNode);
 			root.parent = null;
+			return;
 		} else if (target.leftChild.equals(replaceNode)) {
 
 			replaceNode.rightChild = target.rightChild;
@@ -515,6 +551,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 				replaceNode.rightChild = target.rightChild;
 				root.color = BLACK;
 				info.add(new Instruction("recolor", root.getData(), false, false, null, null, null, null));
+				deleteRecolor(replaceNode);
 				root.parent = null;
 				return;
 			}
