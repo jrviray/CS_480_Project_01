@@ -7,10 +7,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 
 import java.util.Arrays;
@@ -641,7 +639,6 @@ public class Animator {
                 } else {
                     parentNode.setRightLinkVisible(false);
                 }
-
             }
 
             ParallelTransition deleteAnimation = new ParallelTransition();
@@ -670,7 +667,7 @@ public class Animator {
             return mainAnimation;
         }
 
-        else    //delete node has one child
+        else    //delete node has only one child
         {
 
             ParallelTransition deleteAnimation = new ParallelTransition();
