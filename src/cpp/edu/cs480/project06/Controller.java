@@ -20,7 +20,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.File;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -262,8 +262,7 @@ public class Controller extends Application{
         outputArea.setText("Output:\n");
     }
 
-    private void saveTree()
-    {
+    private void saveTree(){
         TextInputDialog save = new TextInputDialog();
         save.setTitle("Save tree");
         save.setHeaderText("Save");
@@ -271,7 +270,18 @@ public class Controller extends Application{
         Optional<String> saveName = save.showAndWait();
         if(saveName.isPresent())
         {
-            //here serialize
+            try {
+                SaveInfo data = new SaveInfo(animator.getHashTable(), this.tree,this.tree.root.getData());
+                FileOutputStream fileSave = new FileOutputStream(saveName.get() + ".dat");
+                ObjectOutputStream dataSave = new ObjectOutputStream(fileSave);
+                dataSave.writeObject(data);
+                dataSave.close();
+                fileSave.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -307,7 +317,28 @@ public class Controller extends Application{
 
                if(fileName.isPresent())
                {
-                   //load the tree
+                   try {
+                       //load the treeDataSave data;
+                       FileInputStream fileSave = new FileInputStream(fileName.get() + ".dat");
+                       ObjectInputStream dataSave = new ObjectInputStream(fileSave);
+                       SaveInfo data = (SaveInfo) dataSave.readObject();
+                       dataSave.close();
+                       fileSave.close();
+                       tree = data.getTree();
+                       animator.loadTree(data.getTable(),data.getRootID());
+                   }
+                   catch (FileNotFoundException e)
+                   {
+                       e.printStackTrace();
+                   }
+                   catch (IOException e)
+                   {
+                       e.printStackTrace();
+                   }
+                   catch (ClassNotFoundException e)
+                   {
+                       e.printStackTrace();
+                   }
                }
            }
 

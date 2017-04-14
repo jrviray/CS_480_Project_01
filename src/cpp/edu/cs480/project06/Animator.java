@@ -76,6 +76,7 @@ public class Animator {
 
         //dynamically create null children nodes for this new node
         addNullNode(newNode);
+        newNode.setHashID(ID);
         return ID;
 
     }
@@ -725,7 +726,9 @@ public class Animator {
             GraphicNode topNode = getNode(topNodeID);
             GraphicNode bottomNode = getNode(bottomNodeID);
             hashTable[topNodeID]=bottomNode;
+            bottomNode.setHashID(topNodeID);
             hashTable[bottomNodeID]=topNode;
+            topNode.setHashID(bottomNodeID);
             String valueA = topNode.getValue();
             String valueB = bottomNode.getValue();
 
@@ -791,10 +794,6 @@ public class Animator {
         return hashTable[nodeID];
     }
 
-    public void clearCanvas()
-    {
-        mainPane.getChildren().clear();
-    }
 
     private void outputString(String output)
     {
@@ -802,6 +801,30 @@ public class Animator {
         outputArea.setText(outputArea.getText()+output+"\n");
         outputArea.positionCaret(outputArea.getText().length());
 
+    }
+
+    public GraphicNode[] getHashTable()
+    {
+        return hashTable;
+    }
+
+    public void loadTree(GraphicNode[] newTable,int rootID)
+    {
+        mainPane.getChildren().clear();
+        this.hashTable = newTable;
+        for(int i=0;i<hashTable.length;i++)
+        {
+            if(getNode(i)!=null)
+            {
+                getNode(i).setLeftLinkVisible(true);
+
+                getNode(i).setRightLinkVisible(true);
+                drawOnCanvas(getNode(i));
+                addNullNode(getNode(i));
+
+            }
+        }
+        resetOverlay(getNode(rootID));
     }
 
 

@@ -8,6 +8,8 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+import java.io.Serializable;
+
 public class GraphicNode extends Group {
 
     /**
@@ -52,6 +54,8 @@ public class GraphicNode extends Group {
      */
     private Circle circle;
 
+    private int hashID;
+
     /**
      * This two represents the link between this node and its children
      */
@@ -64,6 +68,8 @@ public class GraphicNode extends Group {
     private  GraphicNode rightChild;
 
     private GraphicNode parent;
+
+    private boolean isRed;
 
     /**
      * This represents the value on the node
@@ -143,6 +149,7 @@ public class GraphicNode extends Group {
     {
         if(color==RED)
         {
+            isRed=true;
             circle.setFill(RED_FILL);
             keyText.setFill(RED_KEY_FILL);
             circle.setStroke(RED_STROKE);
@@ -150,6 +157,7 @@ public class GraphicNode extends Group {
 
         else if(color==BLACK)
         {
+            isRed=false;
             circle.setFill(BLACK_FILL);
             keyText.setFill(BLACK_KEY_FILL);
             circle.setStroke(BLACK_STROKE);
@@ -338,5 +346,19 @@ public class GraphicNode extends Group {
     public double getTextX() {return keyText.getTranslateX();}
 
     public double getTextY(){return keyText.getTranslateY();}
+
+    public boolean isRed() {
+        return isRed;
+    }
+
+    public int getHashID()
+    {
+        return hashID;
+    }
+
+    public void setHashID(int newID)
+    {
+        hashID=newID;
+    }
 
 }
