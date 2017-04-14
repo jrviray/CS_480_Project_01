@@ -17,7 +17,7 @@ import java.util.*;
 
 
 
-public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
+public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Serializable {
 
 	protected final static boolean RED = true;
 	protected final static boolean BLACK = false;
@@ -739,7 +739,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V> {
 	 * Every time a node is created, its left and right child is set to null
 	 * nodes as per the structure of a Red Black tree.
 	 */
-	protected class Node {
+	protected class Node implements Serializable {
 		// delete data because we only want the key (which is the number)
 		protected K key;
 		protected V data;
