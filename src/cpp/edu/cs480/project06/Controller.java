@@ -20,7 +20,10 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.util.Queue;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -40,6 +43,7 @@ public class Controller extends Application{
     private DoubleProperty playRate;
     private boolean isNullVisible;
     private Animation thisAnimation;
+
     
 
     private void initialize() {
@@ -53,13 +57,13 @@ public class Controller extends Application{
         deleteButton = new Button("Delete");
         deleteButton.setOnMouseClicked(event -> delete());
         //delete button on mouse action event
-        deleteButton.setDisable(true);
         fixButton = new Button("Fix");
         fixButton.setDisable(true);
         fixButton.setOnMouseClicked(event -> {thisAnimation.play(); fixButton.setDisable(true);});
         saveButton = new Button("Save");
-        saveButton.setDisable(true);
+        saveButton.setOnMouseClicked(event -> saveTree());
         loadButton = new Button("Load");
+        loadButton.setOnMouseClicked(event -> loadTree());
         
         Label inputLabel = new Label ("Integer Input:");
         inputLabel.setFont(Font.font(15f));
@@ -116,6 +120,8 @@ public class Controller extends Application{
         rootPane.setCenter(scrollPane);
         animator = new Animator(mainPane, isNullVisible,outputArea);
         tree = new RedBlackTree<Integer, Integer>();
+
+
     }
     public static void main(String[] args) {
         launch(args);
@@ -180,8 +186,11 @@ public class Controller extends Application{
                 break;
         }
         if(tree.info.isEmpty()) {
-            thisAnimation.setOnFinished(event -> {addButton.setDisable(false);
-                deleteButton.setDisable(false);});
+            thisAnimation.setOnFinished(event -> {
+                addButton.setDisable(false);
+                deleteButton.setDisable(false);
+                saveButton.setDisable(false);
+                loadButton.setDisable(false);});
             thisAnimation.rateProperty().bind(playRate);
             thisAnimation.play();
         }
@@ -210,6 +219,8 @@ public class Controller extends Application{
             playAnimation(tree.info.poll());
             addButton.setDisable(true);
             deleteButton.setDisable(true);
+            saveButton.setDisable(true);
+            loadButton.setDisable(true);
         } catch (NumberFormatException e) {
             outputString("Invalid Input! Please enter an integer!");
         }
@@ -221,6 +232,8 @@ public class Controller extends Application{
             playAnimation(tree.info.poll());
             addButton.setDisable(true);
             deleteButton.setDisable(true);
+            saveButton.setDisable(true);
+            loadButton.setDisable(true);
         } catch (NumberFormatException e) {
             outputString("Invalid Input! Please enter an Integer!");
         }
@@ -240,5 +253,58 @@ public class Controller extends Application{
     private void resetOutputArea()
     {
         outputArea.setText("Output:\n");
+    }
+
+    private void saveTree()
+    {
+        TextInputDialog save = new TextInputDialog();
+        save.setTitle("Save tree");
+        save.setHeaderText("Save");
+        save.setContentText("Please enter the name you want to save as:");
+        Optional<String> saveName = save.showAndWait();
+        if(saveName.isPresent())
+        {
+            //here serialize
+        }
+    }
+
+    private void loadTree()
+    {
+        List<String> loadableFileName = new ArrayList<>();
+        File curDir = new File(".");
+        File[] allFile=curDir.listFiles();
+
+            for(File x:allFile)
+            {
+                if(x.getName().endsWith(".dat"))
+                {
+                   loadableFileName.add(x.getName().replace(".dat",""));
+                }
+            }
+
+           if(loadableFileName.isEmpty())
+           {
+               Alert noFileFound = new Alert(Alert.AlertType.INFORMATION);
+               noFileFound.setTitle("No match file found");
+               noFileFound.setHeaderText(null);
+               noFileFound.setContentText("No match file found!");
+               noFileFound.showAndWait();
+           }
+           else
+           {
+               ChoiceDialog<String> load = new ChoiceDialog<>(loadableFileName.get(0),loadableFileName);
+               load.setTitle("Load tree");
+               load.setHeaderText("Load");
+               load.setContentText("Please select a tree that you want to laod:");
+               Optional<String> fileName = load.showAndWait();
+
+               if(fileName.isPresent())
+               {
+                   //load the tree
+               }
+           }
+
+
+
     }
 }
