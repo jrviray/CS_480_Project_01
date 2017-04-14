@@ -326,6 +326,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 		Node current = root;
 
 		if (lookup(key) == null) {
+			System.out.println("cannot find node");
 		}
 		if (key.compareTo(root.key) == 0 && (root.leftChild.key == null && root.rightChild.key == null)) {
 			info.add(new Instruction("remove", root.getData(), false, false, null, null, null, null));
@@ -343,6 +344,9 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 				if (current.leftChild.key == null && current.rightChild.key == null) {
 					deleteCaseOne(current);
 				} else if (current.leftChild.key != null && current.rightChild.key != null) {
+					System.out.println("its deleting");
+					System.out.println("current is: " + current.key);
+					System.out.println("inordersuccessor: " + findInorderSuccessor(current).key);
 					deleteCaseTwo(current);
 				} else if (current.leftChild.key != null || current.rightChild.key != null) {
 					deleteCaseThree(current);
@@ -407,8 +411,12 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 	public void deleteCaseOne(Node target) {
 		if (target.color == RED) {
 			if (target.isLeftChild()) {
-				info.add(new Instruction("remove", target.getData(), false, false, null, null, null, null));
+				System.out.println("deleting node" + target.key);
+				System.out.println("target.parent" + target.parent.key);
+				System.out.println("target.parent.leftChild" + target.parent.leftChild.key);
+				info.add(new Instruction("remove", target.getData(), true, false, null, null, null, null));
 				target.parent.leftChild = new Node();
+				System.out.println("target.parent.leftchild after delete" + target.parent.leftChild.key);
 			} else {
 				target.parent.rightChild = new Node();
 				info.add(new Instruction("remove", target.getData(), false, false, null, null, null, null));
@@ -448,6 +456,8 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 				deleteRecolor(target);
 			}
 		}
+		
+		
 
 	}
 
@@ -456,6 +466,9 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 	 */
 	public void deleteCaseTwo(Node target) {
 		Node replaceNode = findInorderSuccessor(target);
+		System.out.println("target is" + target.key);
+		System.out.println("target.rightChild is " + target.rightChild.key);
+		System.out.println("suc is " + target.rightChild.leftChild.key);
 		/*
 		 * if (target.isLeftChild()) { replaceNode.parent.rightChild =
 		 * replaceNode.rightChild; } else { replaceNode.parent.leftChild =
@@ -467,8 +480,9 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 		
 		if (target.rightChild.equals(replaceNode)) {
 			System.out.println("the problem is here");
+			target.parent.rightChild = replaceNode;
 			replaceNode.leftChild = target.leftChild;
-			replaceNode.rightChild = target.leftChild;
+			replaceNode.rightChild = target.rightChild;
 			target.leftChild.parent = replaceNode;
 			replaceNode.rightChild = new Node();
 			root.parent = null;
