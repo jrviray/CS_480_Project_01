@@ -5,11 +5,13 @@
  */
 package cpp.edu.cs480.project06;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Hunter
  */
-public class Instruction<V> {
+public class Instruction<V> implements Serializable{
 	   String instr;
 	   V ID;
            //whether the node is going to be a left child OR right child, OR defines type of rotation
