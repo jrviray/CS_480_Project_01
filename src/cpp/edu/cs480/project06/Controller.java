@@ -156,6 +156,9 @@ public class Controller extends Application{
     private void playAnimation(Instruction input) {
         System.out.println(input);
         //PauseTransition is just so thisAnimation is initialized
+        if(input.getError() != null) {
+            outputString(input.getError());
+        }
         thisAnimation = new PauseTransition(Duration.ZERO);
         String thisInstruction = input.getInstruction();
         switch (thisInstruction) {
@@ -315,7 +318,7 @@ public class Controller extends Application{
                ChoiceDialog<String> load = new ChoiceDialog<>(loadableFileName.get(0),loadableFileName);
                load.setTitle("Load tree");
                load.setHeaderText("Load");
-               load.setContentText("Please select a tree that you want to laod:");
+               load.setContentText("Please select a tree that you want to load:");
                Optional<String> fileName = load.showAndWait();
 
                if(fileName.isPresent())
