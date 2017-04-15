@@ -460,6 +460,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 
 				else if(sibling.leftChild.color==RED && isTargetLeft)	//right-left case
 				{
+					info.add(new Instruction("invariant", null, false, false, null, null, null, "Sibling is right child of its parent and its child is a red left child. Perform rotations and recoloring to restore invariant"));
 					Node sLeft = sibling.leftChild;
 						rightRotate(sibling);
 						sibling.color=RED;
@@ -472,6 +473,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 
 				else if(sibling.rightChild.color==RED && !isTargetLeft)	//left-right case
 				{
+					info.add(new Instruction("invariant", null, false, false, null, null, null, "Siblings is left child of its parent and its right child is red. Perform rotations and recoloring to restore invariant"));
 					Node sRight = sibling.rightChild;
 					leftRotate(sibling);
 					sibling.color=RED;
@@ -484,6 +486,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 
 				else if(sibling.rightChild.color==BLACK && sibling.leftChild.color==BLACK)
 				{
+					info.add(new Instruction("invariant", null, false, false, null, null, null, "Sibling is black and both its children are black. Perform recoloring to restore invariant"));
 					sibling.color=RED;
 					info.add(new Instruction("recolor", sibling.getData(), false, true, null, null, null, null));
 					if(parent.color==BLACK)
@@ -504,11 +507,13 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 				info.add(new Instruction("recolor", parent.getData(), false, true, null, null, null, null));
 				if(isTargetLeft)
 				{
+					info.add(new Instruction("invariant", null, false, false, null, null, null, "Sibling is red and is the left child. Perform rotation to fix invariant"));
 					leftRotate(parent);
 					doubleBlack(target);
 				}
 				else
 				{
+					info.add(new Instruction("invariant", null, false, false, null, null, null, "Sibling is red and is the right child.Perform rotation to fix invariant"));
 					rightRotate(parent);
 					doubleBlack(target);
 				}
@@ -521,6 +526,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 	{
 		if(isRight)	//right-right case
 		{
+			info.add(new Instruction("invariant", null, false, false, null, null, null, "Sibling is a right child and its right child or both its children is red."));
 			leftRotate(P);
 			S.rightChild.color=BLACK;
 			info.add(new Instruction("recolor", S.rightChild.getData(), false, false, null, null, null, null));
@@ -535,6 +541,7 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 		}
 		else		//left-left case
 		{
+			info.add(new Instruction("invariant", null, false, false, null, null, null, "Sibling is a left child and its left child or both its children is red."));
 			rightRotate(P);
 			S.leftChild.color=BLACK;
 			info.add(new Instruction("recolor", S.leftChild.getData(), false, false, null, null, null, null));
