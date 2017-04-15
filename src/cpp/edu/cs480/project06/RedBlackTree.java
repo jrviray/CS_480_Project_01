@@ -77,21 +77,26 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 		if (target == root || target.parent.color == BLACK) {
 			return;
 		} else if (findUncle(target).color == RED) {
+			info.add(new Instruction("invariant", null, false, false, null, null, null, "Added node's parent is red and uncle is red. Perform recolor to fix invariant"));
 			recolor(target);
 
 		} else if (findUncle(target).color == BLACK) {
 			if (target.parent.isLeftChild() && target.isLeftChild()) {
 
+				info.add(new Instruction("invariant", null, false, false, null, null, null, "Added node is a left child, parent is a red left child, and uncle is black. Perform rotations and recoloring to fix invariant"));
 				addLeftLeftCase(target);
 			} else if (target.parent.isLeftChild() && !target.isLeftChild()) {
 
+				info.add(new Instruction("invariant", null, false, false, null, null, null, "Added node is a right child, parent is red left child, and uncle is black. Perform rotations and recoloring to fix invariant"));
 				addLeftRightCase(target);
 			} else if (!target.parent.isLeftChild() && !target.isLeftChild()) {
 
+				info.add(new Instruction("invariant", null, false, false, null, null, null, "Added node is a right child, parent is a red right child, and uncle is black. Perform rotations and recoloring to fix invariant"));
 				addRightRightCase(target);
 				
 			} else if (!target.parent.isLeftChild() && target.isLeftChild()) {
 
+				info.add(new Instruction("invariant", null, false, false, null, null, null, "Added node is a left child, parent is a red right child, and uncle is black. Perform rotations and recoloring to fix invariant"));
 				rightLeftCase(target);
 			}
 		}
