@@ -125,6 +125,10 @@ public class Controller extends Application{
         tree = new RedBlackTree<Integer, Integer>();
         thisAnimation = new PauseTransition(Duration.ZERO);
 
+        Label copyrightLabel = new Label("Copyright (c) System.out, LLC Version 1.0 ");
+        rootPane.setBottom(copyrightLabel);
+        BorderPane.setAlignment(copyrightLabel,Pos.CENTER_RIGHT);
+
 
     }
     public static void main(String[] args) {
@@ -160,7 +164,6 @@ public class Controller extends Application{
         }
     }
     private void playAnimation(Instruction input) {
-        System.out.println(input);
         //PauseTransition is just so thisAnimation is initialized
         if(input.getError() != null) {
             outputString(input.getError());
