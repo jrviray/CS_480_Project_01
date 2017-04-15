@@ -30,19 +30,17 @@ public class Animator {
 
     private boolean nullNodeVisible;
 
-    private TextArea outputArea;
 
 
     /**
      * default constructor
      * @param mainPane
      */
-    public Animator(Pane mainPane, boolean isNullVisible,TextArea outputArea)
+    public Animator(Pane mainPane, boolean isNullVisible)
     {
         this.mainPane=mainPane;
         hashTable=new GraphicNode[2];
         nullNodeVisible=isNullVisible;
-        this.outputArea=outputArea;
     }
 
 
@@ -270,7 +268,6 @@ public class Animator {
     {
         SequentialTransition mainAnimation = new SequentialTransition();
         GraphicNode newNode = getNode(newNodeID);
-        outputString("insert root node "+newNode.getValue());
         newNode.setColor(GraphicNode.BLACK);    //root node's color is always black
         TranslateTransition movementAnimation = movementTo(newNode,mainPane.getWidth()/2, newNode.getY(),
                 null);  //move to the center of the canvas
@@ -296,11 +293,9 @@ public class Animator {
 
         adjustmentAnimation.setOnFinished(actionEvent->{this.removeFromCanvas(parentNode.getLeftChild());  //remove the null node
             parentNode.setLeftChild(newNode);
-            parentNode.setLeftLinkVisible(true);
-            outputString("insert node "+newNode.getValue()+" to the left of node "+parentNode.getValue());});  //create the link and make it visible
+            parentNode.setLeftLinkVisible(true);});  //create the link and make it visible
         double targetX=parentNode.getX()-UNIT_DISTANCE,
                 targetY=parentNode.getY()+UNIT_DISTANCE;
-        outputString("Finding an empty spot to insert "+newNode.getValue());
         mainAnimation.getChildren().addAll(
                                     this.insertionTraversal(parentNodeID), //add the highlight animation
                                     adjustmentAnimation, //add adjustment animation
@@ -329,12 +324,10 @@ public class Animator {
 
         adjustmentAnimation.setOnFinished(actionEvent->{this.removeFromCanvas(parentNode.getRightChild());  //remove the null node
             parentNode.setRightChild(newNode);
-            parentNode.setRightLinkVisible(true);
-            outputString("insert node "+newNode.getValue()+" to the right of node "+parentNode.getValue());});  //create the link and make it visible
+            parentNode.setRightLinkVisible(true);});  //create the link and make it visible
 
         double targetX=parentNode.getX()+UNIT_DISTANCE,
                 targetY=parentNode.getY()+UNIT_DISTANCE;
-        outputString("Finding an empty spot to insert "+newNode.getValue());
         mainAnimation.getChildren().addAll(
                 this.insertionTraversal(parentNodeID), //add the highlight animation
                 adjustmentAnimation, //add adjustment animation
@@ -488,11 +481,10 @@ public class Animator {
         SequentialTransition mainAnimation = new SequentialTransition();
         topNode.highlightRightLink();
         PauseTransition highlight = new PauseTransition(Duration.ONE);   //highlight the rotation link
-        outputString("Invariant is broken.\nPress fix to continue.");
+
 
         //after the highlight preparing for rotation
         highlight.setOnFinished(event -> {
-            outputString("Rotate node "+topNode.getValue()+" to the left");
         topNode.unhighlightRightLink();
         topNode.unbindParent();
         bottomNode.unbindParent();  //the two moving node first unbind with their parent so that they could move freely
@@ -559,10 +551,8 @@ public class Animator {
         SequentialTransition mainAnimation = new SequentialTransition();
         topNode.highlightLeftLink();    //highlight the rotation link
         PauseTransition highlight = new PauseTransition(Duration.ONE);
-        outputString("Invariant is broken.\nPress fix to continue.");
         //after the highlight preparing for rotation
         highlight.setOnFinished(event -> {
-            outputString("Rotate node "+topNode.getValue()+" to the right");
             topNode.unhighlightLeftLink();
             topNode.unbindParent();
             bottomNode.unbindParent();  //the two moving node first unbind with their parent so that they could move freely
@@ -660,7 +650,6 @@ public class Animator {
                 dele[i].setToValue(0);
                 deleteAnimation.getChildren().add(dele[i]);
             }
-            outputString("Deleting node "+deleteNode.getValue());
             deleteAnimation.setOnFinished(event -> {
                 removeFromCanvas(deleteNode.getLeftChild());
                 removeFromCanvas(deleteNode.getRightChild());
@@ -756,8 +745,7 @@ public class Animator {
         circleB.setStroke(GraphicNode.HIGHLIGHT_2);
 
         SequentialTransition bottomTraversal = highlightTraversal(circleB,bottomNodePath);
-        bottomTraversal.setOnFinished(event -> {drawOnCanvas(topText);drawOnCanvas(bottomText);
-        outputString("Swapping "+topText.getText()+" and "+ bottomText.getText());});
+        bottomTraversal.setOnFinished(event -> {drawOnCanvas(topText);drawOnCanvas(bottomText);});
 
             ParallelTransition textMovement = new ParallelTransition();
             textMovement.getChildren().add(movementTo(topText,bottomNode.getTextX(),bottomNode.getTextY(),null));
@@ -783,11 +771,9 @@ public class Animator {
     public void recolor(int nodeID, boolean isRed){
     	GraphicNode colorNode = getNode(nodeID);
     	if(isRed){
-    		outputString("Set node "+colorNode.getValue()+" to red");
     		colorNode.setColor(GraphicNode.RED);
     	}
     	else{
-            outputString("Set node "+colorNode.getValue()+" to black");
     		colorNode.setColor(GraphicNode.BLACK);
     	}
  
@@ -800,13 +786,6 @@ public class Animator {
     }
 
 
-    private void outputString(String output)
-    {
-
-        outputArea.setText(outputArea.getText()+output+"\n");
-        outputArea.positionCaret(outputArea.getText().length());
-
-    }
 
     public GraphicNode[] getHashTable()
     {

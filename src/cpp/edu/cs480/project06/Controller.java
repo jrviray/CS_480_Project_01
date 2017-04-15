@@ -121,7 +121,7 @@ public class Controller extends Application{
         container.setDividerPositions(.8f,.2f);
 
         rootPane.setCenter(container);
-        animator = new Animator(mainPane, isNullVisible,outputArea);
+        animator = new Animator(mainPane, isNullVisible);
         tree = new RedBlackTree<Integer, Integer>();
         thisAnimation = new PauseTransition(Duration.ZERO);
 
@@ -227,6 +227,7 @@ public class Controller extends Application{
             if(thisInstruction.equals("rotate"))
             {
                 thisAnimation.pause();
+                outputString("Press fix to continue.");
                 fixButton.setDisable(false);
             }
         }
