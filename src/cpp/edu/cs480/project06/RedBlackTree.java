@@ -801,6 +801,11 @@ public class RedBlackTree<K extends Comparable<K>, V> implements Tree<K, V>,Seri
 					info.add(new Instruction("recolor", sibling.getData(), false, true, null, null, null, null));
 					if(parent.color==BLACK)
 					doubleBlack(parent);
+					else {
+						parent.color = BLACK;
+						info.add(new Instruction("recolor", parent.getData(), false, false, null, null, null, null));
+					}
+
 				}
 			}
 			else	//sibling is red
