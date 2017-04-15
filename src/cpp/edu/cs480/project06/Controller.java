@@ -191,8 +191,7 @@ public class Controller extends Application{
                 addButton.setDisable(false);
                 deleteButton.setDisable(false);
                 saveButton.setDisable(false);
-                loadButton.setDisable(false);
-                inputValue.clear();});
+                loadButton.setDisable(false);});
             thisAnimation.rateProperty().bind(playRate);
             thisAnimation.setOnFinished(actionEvent -> {centerAdjustment.play();});
             thisAnimation.play();
@@ -215,7 +214,7 @@ public class Controller extends Application{
             //key = user input 
             //value = data = ID of node (hidden from user)
             int key = Integer.parseInt(inputValue.getText());
-            
+            inputValue.clear();
 
             //disable buttons before the animation ends
            int value = animator.generateNode(key);
@@ -238,19 +237,19 @@ public class Controller extends Application{
     private void delete() {
         try {
             int key = Integer.parseInt(inputValue.getText());
-            tree.remove(key);
-            playAnimation(tree.info.poll());
-            addButton.setDisable(true);
-            deleteButton.setDisable(true);
-            saveButton.setDisable(true);
-            loadButton.setDisable(true);
+            inputValue.clear();
+            boolean hasKey = tree.remove(key);
+            if(!hasKey)
+                outputString("No such node found!");
+            else {
+                playAnimation(tree.info.poll());
+                addButton.setDisable(true);
+                deleteButton.setDisable(true);
+                saveButton.setDisable(true);
+                loadButton.setDisable(true);
+            }
         } catch (NumberFormatException e) {
             outputString("Invalid Input! Please enter an Integer!");
-        }
-        catch (NullPointerException e)
-        {
-            outputString("No such node found!");
-            tree.info.clear();
         }
     }
     

@@ -16,7 +16,7 @@ public interface Tree<K extends Comparable<K>, V> {
 	 * removing from a Red Black cpp.edu.cs480.project06.Tree as well as restoring the invariant of the
 	 * Red black tree.
 	 */
-	public V remove(K key);
+	public boolean remove(K key);
 	
 	/**
 	 * Same lookup method as standard BST. This method searches the tree for the

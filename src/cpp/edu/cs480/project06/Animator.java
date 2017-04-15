@@ -733,10 +733,6 @@ public class Animator {
             //get all the info
             GraphicNode topNode = getNode(topNodeID);
             GraphicNode bottomNode = getNode(bottomNodeID);
-            hashTable[topNodeID]=bottomNode;
-            bottomNode.setHashID(topNodeID);
-            hashTable[bottomNodeID]=topNode;
-            topNode.setHashID(bottomNodeID);
             String valueA = topNode.getValue();
             String valueB = bottomNode.getValue();
 
