@@ -250,6 +250,7 @@ public class Animator {
 
     public TranslateTransition centerAdjustment(int rootID)
     {
+
         GraphicNode root = getNode(rootID);
         TranslateTransition mainAnimation = movementTo(root,mainPane.getWidth()/2,root.getY(),null);
         mainAnimation.setRate(3f);
@@ -829,6 +830,12 @@ public class Animator {
             }
         }
         resetOverlay(getNode(rootID));
+    }
+
+    public void clearCanvas()
+    {
+        mainPane.getChildren().clear();
+        hashTable=new GraphicNode[2];
     }
 
 

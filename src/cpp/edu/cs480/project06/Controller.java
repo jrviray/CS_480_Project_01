@@ -35,7 +35,7 @@ public class Controller extends Application{
     private Pane mainPane;
     private double mainPaneWidth = 1600;
     private double mainPaneHeight = 600;
-    private Button addButton, deleteButton, fixButton, saveButton, loadButton;
+    private Button addButton, deleteButton, fixButton, saveButton, loadButton,clearButton;
     private TextField inputValue;
     private BorderPane rootPane;
     private TextArea outputArea;
@@ -61,6 +61,11 @@ public class Controller extends Application{
         fixButton = new Button("Fix");
         fixButton.setDisable(true);
         fixButton.setOnMouseClicked(event -> {thisAnimation.play(); fixButton.setDisable(true);});
+
+        clearButton = new Button("Clear");
+        clearButton.setOnMouseClicked(event -> {clear();});
+
+
         saveButton = new Button("Save");
         saveButton.setOnMouseClicked(event -> saveTree());
         loadButton = new Button("Load");
@@ -93,7 +98,7 @@ public class Controller extends Application{
         nullVisible.selectedProperty().addListener(action->{isNullVisible=!isNullVisible;animator.setNullNodeVisible(isNullVisible);});
 
         leftPane.getChildren().addAll(inputLabel,inputValue,addButton,
-                deleteButton,fixButton,rate,nullVisible);
+                deleteButton,fixButton,rate,nullVisible,clearButton);
         rightPane.getChildren().addAll(saveButton,loadButton);
 
 
@@ -118,6 +123,7 @@ public class Controller extends Application{
         rootPane.setCenter(container);
         animator = new Animator(mainPane, isNullVisible,outputArea);
         tree = new RedBlackTree<Integer, Integer>();
+        thisAnimation = new PauseTransition(Duration.ZERO);
 
 
     }
@@ -156,7 +162,7 @@ public class Controller extends Application{
     private void playAnimation(Instruction input) {
         System.out.println(input);
         //PauseTransition is just so thisAnimation is initialized
-        thisAnimation = new PauseTransition(Duration.ZERO);
+
         String thisInstruction = input.getInstruction();
         switch (thisInstruction) {
             case "add":
@@ -170,7 +176,7 @@ public class Controller extends Application{
                 thisAnimation = rotate((int)input.getID(), input.getLR());
                 break;
             case "recolor":
-                //thisAnimation = recolor
+                if(input.getID()!=null)
                 animator.recolor((int)input.getID(), input.getColor());
                 break;
             case "swap":
@@ -185,15 +191,28 @@ public class Controller extends Application{
         }
         if(tree.info.isEmpty()) {
 
-            Animation centerAdjustment = animator.centerAdjustment(tree.root.getData());
-            centerAdjustment.setOnFinished(event -> {
+            if(tree.root.getKey()!=null) {
+                Animation centerAdjustment = animator.centerAdjustment(tree.root.getData());
+                centerAdjustment.setOnFinished(event -> {
 
-                addButton.setDisable(false);
-                deleteButton.setDisable(false);
-                saveButton.setDisable(false);
-                loadButton.setDisable(false);});
+                    addButton.setDisable(false);
+                    deleteButton.setDisable(false);
+                    saveButton.setDisable(false);
+                    loadButton.setDisable(false);
+                });
+                thisAnimation.setOnFinished(actionEvent -> {
+                    centerAdjustment.play();
+                });
+            }
+            else
+            {
+                thisAnimation.setOnFinished(actionEvent->{
+                    addButton.setDisable(false);
+                    deleteButton.setDisable(false);
+                    saveButton.setDisable(false);
+                    loadButton.setDisable(false);});
+            }
             thisAnimation.rateProperty().bind(playRate);
-            thisAnimation.setOnFinished(actionEvent -> {centerAdjustment.play();});
             thisAnimation.play();
         }
         else {
@@ -268,7 +287,7 @@ public class Controller extends Application{
     private void saveTree(){
         TextInputDialog save = new TextInputDialog();
         save.setTitle("Save tree");
-        save.setHeaderText("Save");
+        save.setHeaderText(null);
         save.setContentText("Please enter the name you want to save as:");
         Optional<String> saveName = save.showAndWait();
         if(saveName.isPresent())
@@ -314,8 +333,8 @@ public class Controller extends Application{
            {
                ChoiceDialog<String> load = new ChoiceDialog<>(loadableFileName.get(0),loadableFileName);
                load.setTitle("Load tree");
-               load.setHeaderText("Load");
-               load.setContentText("Please select a tree that you want to laod:");
+               load.setHeaderText(null);
+               load.setContentText("Please select a tree that you want to load:");
                Optional<String> fileName = load.showAndWait();
 
                if(fileName.isPresent())
@@ -344,8 +363,27 @@ public class Controller extends Application{
                    }
                }
            }
+    }
 
-
-
+    public void clear()
+    {
+        thisAnimation.pause();
+        Alert clearConfirm = new Alert(Alert.AlertType.CONFIRMATION);
+        clearConfirm.setTitle("Clear");
+        clearConfirm.setHeaderText(null);
+        clearConfirm.setContentText("Are you sure to clear the whole tree?");
+        Optional<ButtonType> result = clearConfirm.showAndWait();
+        if(result.get()==ButtonType.OK)
+        {
+            tree = new RedBlackTree<Integer, Integer>();
+            animator.clearCanvas();
+            addButton.setDisable(false);
+            fixButton.setDisable(true);
+            deleteButton.setDisable(true);
+            saveButton.setDisable(false);
+            loadButton.setDisable(false);
+        }
+        else
+            thisAnimation.play();
     }
 }
